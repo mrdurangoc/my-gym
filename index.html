@@ -406,6 +406,7 @@ const LIFT_LABELS={push:'Press banca (lbs)',pull:'Peso muerto (lbs)',legs:'Senta
 const tagMap={ss:'tag-ss',star:'tag-star',drop:'tag-drop',rp:'tag-rp',fst:'tag-fst',tabata:'tag-ss',cardio:'tag-fst'};
 const tagLabel={ss:'Superset',star:'⭐ Reto',drop:'Drop Set',rp:'Rest-Pause',fst:'FST-7',tabata:'Tabata',cardio:'Cardio'};
 const cardClass={tabata:'tabata',cardio:'cardio',star:'star',ss:'superset',drop:'superset',rp:'superset',fst:''};
+const PROGRAM_START = '2026-05-07';
 
 // ═══════════════════════════════════════
 // STATE
@@ -639,7 +640,6 @@ function calcStreak(){
   }
   return streak;
 }
-const PROGRAM_START = '2026-05-07';
 function getCurrentWeek(){
   const start=new Date(PROGRAM_START+'T12:00:00');
   const diff=Math.floor((new Date()-start)/(1000*60*60*24));
