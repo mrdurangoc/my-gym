@@ -544,12 +544,13 @@ function renderToday(){
   let html=`<div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted2);text-transform:uppercase;margin-bottom:10px;padding:8px 12px;background:var(--card);border-radius:8px;border:1px solid var(--border);">💡 Toca un ejercicio para ver timer y tips</div>`;
   w.exercises.forEach((ex,i)=>{
     const cc=cardClass[ex.tag]||'';
+    const dynamicNote = getExerciseNote(key, i) || ex.note;
     html+=`<div class="ex-card ${cc}">
       <div class="ex-header" onclick="toggleDetail(${i})">
         <div class="ex-left">
           ${ex.tag?`<span class="ex-tag ${tagMap[ex.tag]}">${tagLabel[ex.tag]}</span>`:''}
           <div class="ex-name">${ex.name}</div>
-          ${ex.note?`<div class="ex-note">${ex.note}</div>`:''}
+          ${dynamicNote?`<div class="ex-note">${dynamicNote}</div>`:''}
         </div>
         <div class="ex-right">
           <div class="ex-sets">${ex.sets}</div>
@@ -650,7 +651,90 @@ function getBestPullups(){
   return s.length?Math.max(...s.map(x=>x.pullups)):6;
 }
 function getWeekStart(){
-  const d=new Date();d.setDate(d.getDate()-d.getDay());return localDateStr(d);
+  // Week starts on Monday
+  const d=new Date();
+  const day=d.getDay();
+  const diff=day===0?-6:1-day; // Monday=1, so go back to Monday
+  d.setDate(d.getDate()+diff);
+  return localDateStr(d);
+}
+
+// Dynamic weights based on current week
+const BASE_WEIGHTS = {
+  bench: 145, squat: 185, deadlift: 185, press: 95,
+  incline: 50, dips: 0, rdl: 135
+};
+function getWeekWeight(base, increment=5) {
+  const cw = getCurrentWeek();
+  return base + (cw - 1) * increment;
+}
+
+function getExerciseNote(key, w) {
+  const cw = getCurrentWeek();
+  const notes = {
+    push_heavy: [
+      `Hoy: ${getWeekWeight(BASE_WEIGHTS.bench)} lbs (sem ${cw} · +${(cw-1)*5} lbs desde inicio). Pausa 1 seg en pecho.`,
+      `Hoy: ${getWeekWeight(BASE_WEIGHTS.incline, 2.5)} lbs/mano. Rango completo. Pronación al tope.`,
+      'Sin apoyo lumbar. Core activado.',
+      'Codo ligeramente doblado. Contracción 1 seg arriba.',
+      'Torso vertical = tríceps dominante.',
+      'Última serie: baja 30% de peso y va a fallo.',
+      'Ab wheel · Leg raises · Plank-to-push-up · Pike crunch',
+      'Cooldown 4 min al final.',
+    ],
+    pull_heavy: [
+      'Primero, fresco. Máximo esfuerzo. Registra cuántas haces abajo.',
+      `Hoy: ${getWeekWeight(BASE_WEIGHTS.deadlift)} lbs (sem ${cw}). Reset completo por rep. Sin rebote.`,
+      `Hoy: ${getWeekWeight(BASE_WEIGHTS.deadlift - 20)} lbs. Explosivo al subir. 2 seg al bajar.`,
+      'Codo alto. Retracción escapular total.',
+      'REST-PAUSE: 10 reps → 15 seg → 5 reps más.',
+      'Tempo 2-0-1. Sin balanceo.',
+      'Banco a 45°. Estiramiento máximo abajo.',
+      'V-ups · Hollow hold · Russian twist · Dead bugs',
+      '1 min saltar cuerda entre rondas.',
+    ],
+    legs_heavy: [
+      `Hoy: ${getWeekWeight(BASE_WEIGHTS.squat)} lbs (sem ${cw} · +${(cw-1)*5} lbs desde inicio). Profundidad completa.`,
+      `Hoy: ${getWeekWeight(BASE_WEIGHTS.rdl)} lbs. Pausa 1 seg abajo. Isquios al límite.`,
+      'Última serie: DROP SET — quita 25% × 2 drops.',
+      'Pie trasero elevado. Mayor activación glútea.',
+      'Pausa 1 seg arriba. Excéntrico 3 seg.',
+      '7 series, 30 seg descanso. Estiramiento completo.',
+      'Mountain climbers · Flutter kicks · Plank · L-sit',
+      '4 min warm · 6×(1 min sprint/1 min trote) · 4 min cool',
+    ],
+    pull_volume: [
+      `Si tu max es ${getBestPullups()} → haz ${Math.floor(getBestPullups()/2)} reps. Calidad perfecta. Sin llegar al fallo.`,
+      'Retracción escapular antes de jalar.',
+      'Codos pegados al cuerpo.',
+      'Estiramiento máximo del dorsal.',
+      'Rear delts. Codos casi rectos.',
+      'REST-PAUSE en el último set.',
+      'Ab wheel · Reverse crunch · Toe touches · Hollow hold',
+      '110–130 bpm. Ritmo conversacional.',
+    ],
+    push_volume: [
+      `Hoy: ${getWeekWeight(Math.round(BASE_WEIGHTS.bench * 0.67))} lbs (65–70% del lunes). Calidad sobre ego.`,
+      'Contracción máxima al centro.',
+      'Sin trampa. Codos ligeramente doblados.',
+      'Rotación completa del movimiento.',
+      'Cabeza larga. Estiramiento máximo.',
+      'Codo fijo. Solo el antebrazo.',
+      'Plank · Bicycle crunch · Scissor kicks · Side plank',
+      'Shadowboxing o saco. No al límite.',
+    ],
+    legs_volume: [
+      'Pausa 2 seg arriba. Máxima contracción glútea.',
+      'Pie trasero elevado en banco.',
+      'Pausa 1 seg arriba.',
+      'Sin descanso entre A1 y A2.',
+      '',
+      'Rango completo. Sin rebote.',
+      '115–130 bpm.',
+    ],
+    rest: ['Cadera, hombros, tobillo, columna.','','Pollo, batata, huevos duros.','El músculo se construye ahora.'],
+  };
+  return (notes[key]||[])[w] || '';
 }
 
 // ═══════════════════════════════════════
