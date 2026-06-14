@@ -441,13 +441,11 @@ async function loadState(){
   }catch(e){console.warn('Sheets load failed, using localStorage',e);}
 }
 
-async function saveState(){
+async function saveState(sessionToSave){
   try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}
-  if(!state.sessions||!state.sessions.length)return;
-  const latest=state.sessions[0];
+  if(!sessionToSave)return;
   try{
-    // ✅ Use GET to avoid CORS
-    const data=encodeURIComponent(JSON.stringify(latest));
+    const data=encodeURIComponent(JSON.stringify(sessionToSave));
     await fetch(`${SCRIPT_URL}?type=gym&action=save&data=${data}`,{method:'GET'});
     document.getElementById('syncDot').textContent='🟢';
   }catch(e){
@@ -595,7 +593,7 @@ async function saveSession(){
   const idx=state.sessions.findIndex(s=>s.date===today&&s.workoutKey===selectedVariant);
   if(idx>=0)state.sessions[idx]=session;else state.sessions.push(session);
   state.sessions.sort((a,b)=>(b.ts||0)-(a.ts||0));
-  await saveState();
+  await saveState(session);
   ['fPullups','fWeight','fLift'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   selectedFeeling='';document.querySelectorAll('.feeling-btn').forEach(b=>b.classList.remove('selected'));
   updateTopBar();
