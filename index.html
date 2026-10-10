@@ -1,741 +1,203 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>6→12 · Tu Gym</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg:#07080c;--surface:#0e1018;--card:#12151f;--card2:#181c28;
-    --border:#1c2130;--border2:#252d40;--white:#edf0f8;--muted:#48526a;--muted2:#6a778f;
-    --green:#22c55e;--green-dim:rgba(34,197,94,0.1);
-    --orange:#f97316;--orange-dim:rgba(249,115,22,0.1);
-    --red:#ef4444;--red-dim:rgba(239,68,68,0.08);
-    --blue:#3b82f6;--blue-dim:rgba(59,130,246,0.08);
-    --yellow:#eab308;--yellow-dim:rgba(234,179,8,0.08);
-    --purple:#a855f7;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-  body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
-  .topbar{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(7,8,12,0.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;}
-  .tb-logo{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;display:flex;align-items:center;gap:6px;}
-  .tb-logo .arr{color:var(--red);}.tb-logo .goal{color:var(--green);}
-  .tb-right{display:flex;align-items:center;gap:10px;}
-  .tb-streak{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--orange);background:var(--orange-dim);border:1px solid rgba(249,115,22,0.2);padding:3px 10px;border-radius:20px;}
-  .tb-week{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted2);letter-spacing:1px;}
-  .nav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(7,8,12,0.96);backdrop-filter:blur(16px);border-top:1px solid var(--border);display:flex;}
-  .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px 10px;cursor:pointer;border-top:2px solid transparent;gap:2px;transition:all 0.2s;}
-  .nav-item.active{border-top-color:var(--green);}
-  .nav-icon{font-size:19px;}
-  .nav-label{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);transition:color 0.2s;}
-  .nav-item.active .nav-label{color:var(--green);}
-  .page{display:none;padding:66px 16px 76px;max-width:500px;margin:0 auto;}
-  .page.active{display:block;animation:fadeUp 0.22s ease;}
-  @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-  .page-title{font-family:'Bebas Neue',cursive;font-size:34px;letter-spacing:1px;line-height:1;margin-bottom:3px;}
-  .page-sub{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted2);text-transform:uppercase;margin-bottom:18px;}
-  .selector-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted2);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
-  .selector-label::after{content:'';flex:1;height:1px;background:var(--border);}
-  .type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
-  .type-btn{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:14px 8px;cursor:pointer;text-align:center;transition:all 0.18s;display:flex;flex-direction:column;align-items:center;gap:6px;}
-  .type-btn:hover{border-color:var(--border2);}
-  .type-btn.selected-push{border-color:var(--blue);background:var(--blue-dim);}
-  .type-btn.selected-pull{border-color:var(--green);background:var(--green-dim);}
-  .type-btn.selected-legs{border-color:var(--red);background:var(--red-dim);}
-  .type-icon{font-size:26px;}
-  .type-name{font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:1px;}
-  .push-col{color:var(--blue);}.pull-col{color:var(--green);}.legs-col{color:var(--red);}
-  .variant-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
-  .variant-btn{background:var(--card);border:2px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;transition:all 0.18s;}
-  .variant-btn.selected{border-color:var(--green);background:var(--green-dim);}
-  .vb-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
-  .vb-badge{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;padding:2px 6px;border-radius:4px;text-transform:uppercase;}
-  .badge-heavy{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.25);}
-  .badge-volume{background:rgba(59,130,246,0.1);color:var(--blue);border:1px solid rgba(59,130,246,0.25);}
-  .vb-pu{font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--yellow);}
-  .vb-name{font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:1px;margin-bottom:2px;}
-  .vb-desc{font-size:11px;color:var(--muted2);line-height:1.4;}
-  .today-header{border-radius:14px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden;}
-  .today-header.push{background:linear-gradient(135deg,rgba(59,130,246,0.12),rgba(59,130,246,0.04));border:1px solid rgba(59,130,246,0.2);}
-  .today-header.pull{background:linear-gradient(135deg,rgba(34,197,94,0.12),rgba(34,197,94,0.04));border:1px solid rgba(34,197,94,0.2);}
-  .today-header.legs{background:linear-gradient(135deg,rgba(239,68,68,0.12),rgba(239,68,68,0.04));border:1px solid rgba(239,68,68,0.2);}
-  .th-bg-text{position:absolute;right:-10px;bottom:-15px;font-family:'Bebas Neue',cursive;font-size:90px;line-height:1;opacity:0.06;pointer-events:none;}
-  .th-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;}
-  .push .th-label{color:var(--blue);}.pull .th-label{color:var(--green);}.legs .th-label{color:var(--red);}
-  .th-title{font-family:'Bebas Neue',cursive;font-size:32px;letter-spacing:1px;line-height:1;margin-bottom:6px;}
-  .th-muscles{font-size:13px;color:var(--muted2);line-height:1.5;}
-  .th-duration{margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted2);letter-spacing:1px;}
-  .missed-badge{display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(234,179,8,0.07);border:1px solid rgba(234,179,8,0.2);border-radius:8px;margin-bottom:12px;}
-  .mb-icon{font-size:16px;flex-shrink:0;}
-  .mb-text{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--yellow);letter-spacing:1px;}
-  .pullup-strip{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--yellow-dim);border:1px solid rgba(234,179,8,0.2);border-radius:10px;margin-bottom:14px;}
-  .ps-icon{font-size:24px;flex-shrink:0;}.ps-body{flex:1;}
-  .ps-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--yellow);text-transform:uppercase;margin-bottom:3px;}
-  .ps-text{font-size:13px;color:var(--white);line-height:1.5;}
-  .ps-num{font-family:'Bebas Neue',cursive;font-size:36px;color:var(--yellow);flex-shrink:0;line-height:1;}
-  .section-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted2);text-transform:uppercase;margin:16px 0 8px;display:flex;align-items:center;gap:8px;}
-  .section-label::after{content:'';flex:1;height:1px;background:var(--border);}
-  .ex-card{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden;}
-  .ex-card.superset{border-left:3px solid var(--orange);}
-  .ex-card.star{border-left:3px solid var(--yellow);}
-  .ex-card.tabata{border-left:3px solid var(--purple);}
-  .ex-card.cardio{border-left:3px solid var(--blue);}
-  .ex-header{display:flex;justify-content:space-between;align-items:flex-start;padding:12px 14px;gap:10px;cursor:pointer;user-select:none;}
-  .ex-left{flex:1;}
-  .ex-tag{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;padding:2px 6px;border-radius:3px;text-transform:uppercase;display:inline-block;margin-bottom:4px;}
-  .tag-ss{background:rgba(249,115,22,0.1);color:var(--orange);border:1px solid rgba(249,115,22,0.2);}
-  .tag-star{background:rgba(234,179,8,0.1);color:var(--yellow);border:1px solid rgba(234,179,8,0.2);}
-  .tag-drop{background:rgba(168,85,247,0.1);color:var(--purple);border:1px solid rgba(168,85,247,0.2);}
-  .tag-rp{background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.2);}
-  .tag-fst{background:rgba(59,130,246,0.1);color:var(--blue);border:1px solid rgba(59,130,246,0.2);}
-  .ex-name{font-size:14px;font-weight:600;line-height:1.3;}
-  .ex-note{font-size:11px;color:var(--muted2);margin-top:2px;font-style:italic;line-height:1.4;}
-  .ex-right{text-align:right;flex-shrink:0;}
-  .ex-sets{font-family:'Bebas Neue',cursive;font-size:20px;color:var(--orange);line-height:1;}
-  .ex-rest{font-family:'JetBrains Mono',monospace;font-size:10px;margin-top:2px;}
-  .rest-s{color:var(--green);}.rest-m{color:var(--orange);}.rest-l{color:var(--red);}
-  .ex-detail{display:none;padding:0 14px 12px;border-top:1px solid var(--border);}
-  .ex-detail.open{display:block;}
-  .ex-detail-text{font-size:12px;color:var(--muted2);line-height:1.8;padding-top:10px;}
-  .rest-timer{display:flex;align-items:center;gap:8px;margin-top:8px;}
-  .timer-btn{padding:6px 14px;background:var(--card2);border:1px solid var(--border2);border-radius:6px;color:var(--white);font-size:12px;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:all 0.15s;white-space:nowrap;}
-  .timer-btn:hover{background:var(--border2);}
-  .timer-display{font-family:'Bebas Neue',cursive;font-size:22px;color:var(--green);min-width:48px;}
-  .form-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:16px;}
-  .form-card-title{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:1px;margin-bottom:14px;color:var(--green);}
-  .form-group{margin-bottom:12px;}
-  .form-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted2);text-transform:uppercase;display:block;margin-bottom:5px;}
-  .form-input{width:100%;background:var(--card2);border:1px solid var(--border2);border-radius:8px;padding:11px 13px;color:var(--white);font-family:'JetBrains Mono',monospace;font-size:16px;outline:none;transition:border-color 0.2s;-webkit-appearance:none;}
-  .form-input:focus{border-color:var(--green);}
-  .form-input::placeholder{color:var(--muted);}
-  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  .feeling-row{display:flex;gap:6px;}
-  .feeling-btn{flex:1;padding:10px 4px;background:var(--card2);border:1px solid var(--border2);border-radius:8px;cursor:pointer;text-align:center;transition:all 0.15s;display:flex;flex-direction:column;align-items:center;gap:3px;}
-  .feeling-btn.selected{border-color:var(--green);background:var(--green-dim);}
-  .feeling-btn .fi{font-size:20px;}
-  .feeling-btn .fl{font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:1px;color:var(--muted2);text-transform:uppercase;}
-  .btn-save{width:100%;padding:15px;background:var(--green);color:#000;border:none;border-radius:10px;font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:2px;cursor:pointer;transition:all 0.15s;margin-top:12px;}
-  .btn-save:hover{background:#16a34a;}
-  .btn-save:active{transform:scale(0.98);}
-  .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
-  .stat-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;}
-  .stat-val{font-family:'Bebas Neue',cursive;font-size:30px;line-height:1;margin-bottom:3px;}
-  .stat-val.g{color:var(--green);}.stat-val.o{color:var(--orange);}.stat-val.b{color:var(--blue);}
-  .stat-lbl{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;color:var(--muted2);text-transform:uppercase;}
-  .cal-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;}
-  .cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
-  .cal-month{font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:1px;}
-  .cal-nav{display:flex;gap:6px;}
-  .cal-nav-btn{background:var(--card2);border:1px solid var(--border2);color:var(--white);width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;}
-  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
-  .cal-dow{text-align:center;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;padding:3px 0 6px;}
-  .cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:7px;border:1px solid transparent;cursor:pointer;gap:1px;}
-  .cal-day.today{border-color:var(--blue);}
-  .cal-day.has-sticker{background:var(--green-dim);border-color:rgba(34,197,94,0.25);}
-  .cal-day.has-sticker.is-pull{background:var(--yellow-dim);border-color:rgba(234,179,8,0.25);}
-  .cal-day.is-makeup{background:rgba(168,85,247,0.08);border-color:rgba(168,85,247,0.25);}
-  .cal-day.empty{opacity:0;pointer-events:none;}
-  .cal-day-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted2);line-height:1;}
-  .cal-day.today .cal-day-num{color:var(--blue);}
-  .cal-day.has-sticker .cal-day-num{color:var(--green);}
-  .cal-sticker{font-size:12px;line-height:1;}
-  .log-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
-  .log-item:last-child{border-bottom:none;}
-  .log-date{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted2);text-align:center;width:34px;flex-shrink:0;line-height:1.4;}
-  .log-feel{font-size:18px;flex-shrink:0;}
-  .log-body{flex:1;}
-  .log-type{font-size:13px;font-weight:500;margin-bottom:1px;}
-  .log-meta{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted2);}
-  .log-pu{font-family:'Bebas Neue',cursive;font-size:22px;color:var(--green);flex-shrink:0;}
-  .makeup-badge{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;padding:1px 6px;border-radius:4px;background:rgba(168,85,247,0.1);color:var(--purple);border:1px solid rgba(168,85,247,0.25);}
-  .chart-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
-  .chart-tab{padding:5px 12px;background:var(--card2);border:1px solid var(--border);border-radius:20px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted2);cursor:pointer;transition:all 0.15s;}
-  .chart-tab.active{background:var(--green-dim);border-color:rgba(34,197,94,0.3);color:var(--green);}
-  .chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
-  .chart-card-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted2);text-transform:uppercase;margin-bottom:10px;}
-  .chart-wrap{position:relative;height:170px;}
-  .chart-empty{height:170px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:1px dashed var(--border2);border-radius:8px;}
-  .chart-empty-icon{font-size:28px;}
-  .chart-empty-text{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
-  .week-target{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--card2);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;}
-  .wt-week{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted2);text-transform:uppercase;flex-shrink:0;width:32px;}
-  .wt-mid{flex:1;}
-  .wt-label{font-size:11px;font-weight:500;margin-bottom:3px;}
-  .wt-bar{height:2px;background:var(--border2);border-radius:2px;overflow:hidden;}
-  .wt-fill{height:100%;background:linear-gradient(90deg,var(--orange),var(--green));border-radius:2px;}
-  .wt-target{font-family:'Bebas Neue',cursive;font-size:22px;color:var(--green);flex-shrink:0;}
-  .reto-week{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;}
-  .reto-week.current{border-color:rgba(34,197,94,0.3);background:var(--green-dim);}
-  .reto-week.done{opacity:0.45;}
-  .rw-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
-  .rw-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted2);text-transform:uppercase;}
-  .rw-label.current-label{color:var(--green);}
-  .rw-target{font-family:'Bebas Neue',cursive;font-size:28px;color:var(--green);line-height:1;}
-  .rw-info{font-size:12px;color:var(--muted2);line-height:1.7;}
-  .rw-challenge{font-size:12px;color:var(--orange);margin-top:4px;font-style:italic;}
-  .toast{position:fixed;bottom:78px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--green);color:#000;padding:10px 22px;border-radius:22px;font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:2px;opacity:0;transition:all 0.3s;pointer-events:none;z-index:300;white-space:nowrap;}
-  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-  .divider{height:1px;background:var(--border);margin:16px 0;}
-  .no-data{text-align:center;padding:16px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;}
-  .hint-box{padding:8px 12px;background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted2);letter-spacing:0.5px;line-height:1.6;}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f7f2">
+  <meta name="app-version" content="5">
+  <meta name="description" content="Tus rutinas de gimnasio, una serie a la vez.">
+  <title>Entreno</title>
+  <style>
+    :root{--paper:#f7f7f2;--ink:#202822;--muted:#687069;--line:#dedfd7;--accent:#294e3d;--soft:#e8ece4;--white:#fff;--danger:#9b3e32;--font:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+    *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased}button,input,select{font:inherit}button{cursor:pointer;-webkit-tap-highlight-color:transparent}button:disabled{opacity:.45;cursor:default}button,a,input,select{outline-offset:5px}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent)}[hidden]{display:none!important}button{color:inherit}svg{display:block;width:20px;height:20px;flex-shrink:0}a{color:var(--accent)}
+    .app{max-width:600px;margin:0 auto;min-height:100svh;display:flex;flex-direction:column;padding:0 34px}.top{height:110px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}.brand{border:0;background:none;padding:8px 0;display:flex;align-items:center;gap:10px;font-size:18px;font-weight:650;letter-spacing:-.5px}.brand svg{width:25px;height:25px}.top-action{border:0;background:none;padding:12px 0 12px 16px;font-size:14px;color:var(--muted)}
+    main{flex:1;padding:42px 0 42px;min-width:0}.eyebrow{font-size:13px;line-height:1.5;color:var(--muted);margin:0 0 20px;display:flex;align-items:center;gap:8px}.dot{width:3px;height:3px;border-radius:50%;background:currentColor;display:inline-block}h1{font-size:clamp(32px,6vw,44px);letter-spacing:-1.9px;line-height:1.13;font-weight:550;margin:0 0 18px;max-width:480px}h2{font-size:23px;font-weight:550;letter-spacing:-.7px;margin:0 0 18px}p{line-height:1.6;margin:0 0 16px}.lead{font-size:16px;color:var(--muted);max-width:400px}.choices{margin:38px 0 20px;border-top:1px solid var(--line)}.choice{width:100%;border:0;border-bottom:1px solid var(--line);padding:24px 0;display:flex;align-items:center;justify-content:space-between;text-align:left;background:none;gap:20px}.choice:hover .arrow{transform:translateX(4px)}.choice-title{font-size:23px;letter-spacing:-.6px;display:block;font-weight:500}.choice-desc{display:block;color:var(--muted);font-size:13px;margin-top:6px;line-height:1.6}.choice .arrow{width:20px;height:20px;transition:transform .15s}.choice-index{font-size:12px;color:var(--muted);width:27px;flex-shrink:0;font-variant-numeric:tabular-nums}.choice-body{flex:1}
+    .primary{width:100%;min-height:56px;padding:17px 22px;border:1px solid var(--accent);background:var(--accent);color:var(--white);border-radius:8px;font-size:15px;font-weight:550;display:flex;align-items:center;justify-content:center;gap:10px}.primary:hover{background:#203f30}.secondary{width:100%;min-height:52px;border:1px solid var(--line);background:none;border-radius:8px;font-size:14px;padding:14px 20px}.secondary:hover{background:#eeefe8}.text-button{border:0;background:none;color:var(--muted);font-size:13px;padding:14px 5px;min-height:44px}.text-button:hover{color:var(--ink)}.actions{margin-top:38px;display:flex;flex-direction:column;gap:10px}.back{display:inline-flex;align-items:center;gap:7px;border:0;background:none;padding:10px 0;color:var(--muted);font-size:13px;margin-bottom:25px}.back svg{width:15px;height:15px}.small{font-size:12px;color:var(--muted);line-height:1.6}.subtle-center{text-align:center}.rule{border:0;border-top:1px solid var(--line);margin:28px 0}.meta-line{display:flex;gap:20px;font-size:14px;color:var(--muted);margin:25px 0}.next-exercise{padding:24px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-top:36px}.next-exercise p{margin:0}.next-exercise .small{margin-bottom:7px}.routine-name{font-size:19px;letter-spacing:-.4px}.technique{display:inline-block;color:var(--accent);font-size:12px;margin-bottom:16px}.exercise-title{font-size:clamp(30px,6vw,40px);letter-spacing:-1.5px;max-width:480px}.prescription{display:flex;gap:35px;margin:28px 0}.prescription strong{font-size:22px;font-weight:500;letter-spacing:-.7px;display:block}.prescription span{display:block;font-size:12px;color:var(--muted);margin-top:5px}.tip{font-size:14px;color:var(--muted);line-height:1.65;max-width:430px}.tip-toggle{border:0;background:none;padding:5px 0 12px;color:var(--accent);font-size:13px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}.field label{font-size:13px;color:var(--muted);display:block;margin-bottom:9px}.input-wrap{display:flex;align-items:center;border:1px solid var(--line);border-radius:8px;background:var(--white);padding-right:14px}.input-wrap:focus-within{border-color:var(--accent);outline:1px solid var(--accent)}.input-wrap input{width:100%;min-width:0;border:0;background:none;font-size:24px;padding:17px 14px;color:var(--ink);font-variant-numeric:tabular-nums;outline:none;box-shadow:none}.input-wrap span{font-size:12px;color:var(--muted)}.input-wrap input::placeholder{color:#9b9f95}.field-note{font-size:12px;color:var(--muted);margin-top:10px}.progress-track{height:2px;background:var(--line);margin:0 0 35px}.progress-track div{height:100%;background:var(--accent);transition:width .15s}.set-count{font-size:13px;color:var(--accent)}.set-markers{display:flex;gap:7px;margin:24px 0 0}.set-marker{width:6px;height:6px;border-radius:50%;background:var(--line)}.set-marker.done{background:var(--accent)}.set-marker.current{outline:1px solid var(--accent);outline-offset:2px}
+    .rest-screen{text-align:center;padding-top:12px}.rest-screen h1{max-width:none}.timer{font-size:clamp(80px,19vw,112px);line-height:1.2;letter-spacing:-6px;font-weight:450;font-variant-numeric:tabular-nums;margin:34px 0 30px}.timer-controls{display:flex;justify-content:center;align-items:center;gap:22px}.timer-control{background:none;border:1px solid var(--line);border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;font-size:13px}.timer-control svg{width:17px;height:17px}.rest-next{border-top:1px solid var(--line);padding-top:26px;margin-top:40px}.rest-next .small{margin-bottom:8px}.rest-next p{margin-bottom:5px}.rest-screen .actions{margin-top:32px}.success-icon{width:46px;height:46px;border-radius:50%;background:var(--soft);display:flex;align-items:center;justify-content:center;margin-bottom:30px;color:var(--accent)}.success-icon svg{width:21px;height:21px}.summary-list{margin:30px 0}.summary-row{display:flex;align-items:center;justify-content:space-between;padding:15px 0;border-bottom:1px solid var(--line);font-size:14px;gap:20px}.summary-row span{color:var(--muted)}.summary-row strong{font-weight:500;text-align:right}.full-field{margin-top:28px}.full-field .input-wrap{max-width:220px}.feeling-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}.feeling-option{border:1px solid var(--line);border-radius:8px;padding:14px 10px;min-height:48px;background:none;font-size:13px}.feeling-option.selected{border-color:var(--accent);background:var(--soft)}.error{font-size:13px;color:var(--danger);line-height:1.6;margin:16px 0 0}.feedback{position:fixed;bottom:95px;left:50%;transform:translateX(-50%);max-width:calc(100% - 40px);background:var(--ink);color:white;padding:13px 20px;border-radius:8px;font-size:13px;z-index:10;line-height:1.5}
+    nav{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--line);padding:9px 0 calc(14px + env(safe-area-inset-bottom));background:var(--paper);position:sticky;bottom:0;z-index:4;flex-shrink:0}.nav-button{background:none;border:0;padding:10px 0 6px;min-height:54px;display:flex;flex-direction:column;align-items:center;gap:7px;color:var(--muted);font-size:11px}.nav-button svg{width:20px;height:20px;stroke-width:1.5}.nav-button.active{color:var(--accent);font-weight:600}.view-select{border:0;border-bottom:1px solid var(--line);border-radius:0;background:none;color:var(--ink);padding:12px 28px 12px 0;font-size:15px;width:100%;margin:18px 0 24px}.history-count{margin:26px 0 8px;font-size:13px;color:var(--muted)}.history-item{display:flex;gap:18px;width:100%;background:none;border:0;border-bottom:1px solid var(--line);padding:21px 0;text-align:left;align-items:center}.history-date{min-width:45px;color:var(--muted);font-size:11px;line-height:1.5}.history-date strong{display:block;font-size:23px;font-weight:450;color:var(--ink);letter-spacing:-.6px}.history-body{flex:1}.history-body strong{display:block;font-weight:500;font-size:15px}.history-body span{font-size:12px;color:var(--muted);display:block;margin-top:6px}.history-item svg{width:17px;height:17px;color:var(--muted)}.empty{padding:35px 0}.empty p{color:var(--muted);font-size:14px}.empty svg{width:30px;height:30px;color:var(--muted);margin-bottom:25px}.metric-number{font-size:56px;letter-spacing:-2.6px;font-weight:450;line-height:1.2;margin:7px 0}.metric-number span{font-size:15px;letter-spacing:0;margin-left:7px;color:var(--muted)}.chart{margin-top:35px;width:100%;display:block}.chart line{stroke:var(--line);stroke-width:1}.chart polyline{fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.chart circle{fill:var(--paper);stroke:var(--accent);stroke-width:2}.chart text{font-size:10px;fill:var(--muted);font-family:var(--font)}.chart-note{display:flex;justify-content:space-between;gap:20px;font-size:11px;color:var(--muted);margin:7px 0 30px}.records-list{border-top:1px solid var(--line);margin-top:28px}.records-row{display:flex;justify-content:space-between;gap:20px;font-size:13px;padding:15px 0;border-bottom:1px solid var(--line)}.records-row span{color:var(--muted)}.records-row strong{font-weight:500}.export{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:22px}.export .text-button{font-size:12px;padding-left:0}.import-file{display:none}.cloud-note{margin-top:25px;font-size:12px;color:var(--muted)}.sync-button{border:0;background:none;color:var(--accent);padding:8px 0;font-size:12px}.mobile-spacer{display:none}
+    .exercise-heading{display:grid;grid-template-columns:minmax(0,1fr) 128px;align-items:center;gap:15px;margin:0 0 20px}.exercise-heading .exercise-title{margin:0;font-size:clamp(27px,5.6vw,35px);line-height:1.14;letter-spacing:-1.25px}.exercise-sketch{width:100%;margin:0;display:flex;align-items:center;justify-content:center;color:#536852}.exercise-sketch svg{width:128px;height:106px;display:block;overflow:visible}.exercise-sketch path{stroke-width:1.8;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round}.exercise-heading+.prescription{margin-top:12px!important}@media(max-width:400px){.exercise-heading{grid-template-columns:minmax(0,1fr) 102px;gap:12px}.exercise-heading .exercise-title{font-size:27px;letter-spacing:-1px}.exercise-sketch svg{width:102px;height:94px}}@media(max-width:350px){.exercise-heading{grid-template-columns:minmax(0,1fr) 86px;gap:10px}.exercise-heading .exercise-title{font-size:25px}.exercise-sketch svg{width:86px;height:82px}}
+    .set-notes{border-top:1px solid var(--line);margin-top:28px}.set-notes summary{cursor:pointer;padding:17px 0;font-size:13px;color:var(--muted);line-height:1.6}.set-notes summary .small{margin-left:5px}.set-notes .fields{margin-top:8px}.set-notes .field-note{margin-bottom:0}
+    .history-tabs{display:flex;gap:24px;border-bottom:1px solid var(--line);margin:26px 0 25px}.history-tab{border:0;border-bottom:2px solid transparent;background:none;padding:11px 0 13px;font-size:14px;color:var(--muted);min-height:44px}.history-tab.selected{color:var(--ink);border-bottom-color:var(--accent);font-weight:550}.calendar{margin:0 0 20px}.calendar-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:12px}.calendar-month{font-size:19px;font-weight:500;letter-spacing:-.4px;margin:0;line-height:1.4}.calendar-month:first-letter{text-transform:uppercase}.calendar-controls{display:flex;gap:4px}.calendar-control{display:flex;align-items:center;justify-content:center;width:44px;height:44px;background:none;border:1px solid var(--line);border-radius:50%}.calendar-control:hover{background:var(--soft)}.calendar-control.next svg{transform:rotate(180deg)}.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px 3px}.calendar-weekday{font-size:11px;color:var(--muted);text-align:center;padding:0 0 10px;line-height:1.6}.calendar-day,.calendar-blank{height:60px;min-width:0}.calendar-day{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:5px;border:1px solid transparent;background:none;border-radius:9px;padding:5px 1px 2px;font-size:12px;font-variant-numeric:tabular-nums}.calendar-day:hover{background:#eceee5}.calendar-day.today{border-color:var(--accent)}.calendar-day.today .calendar-number{font-weight:650}.calendar-day.future{color:#92978e;cursor:default;opacity:1}.calendar-day.future:hover{background:none}.calendar-day .sticker{width:29px;height:29px}.sticker{color:#a87829;filter:none}.sticker-seal{fill:#ead199;stroke:#d9b66d;stroke-width:.9}.sticker-star{fill:#8d6120;stroke:none}.calendar-day.has-sticker .calendar-number{color:var(--ink)}.calendar-day.has-sticker:hover .sticker{transform:rotate(-8deg)}.calendar-day .sticker{transition:transform .15s}.calendar-number{line-height:16px}.calendar-session-dot{width:5px;height:5px;background:var(--muted);border-radius:50%;margin-top:9px}.calendar-footer{display:flex;align-items:center;justify-content:space-between;gap:15px;border-top:1px solid var(--line);padding-top:17px;margin-top:18px}.calendar-total{font-size:14px;font-weight:500;white-space:nowrap}.calendar-footer .text-button{font-size:12px;padding:8px 0;min-height:40px}.calendar-caption{font-size:12px;color:var(--muted);margin:6px 0 0;line-height:1.6}.calendar-day-view{margin-top:20px}.earned-sticker{width:54px;height:54px;margin-bottom:28px;transform:rotate(-9deg)}.earned-sticker .sticker{width:54px;height:54px}.day-sticker-label{font-size:13px;color:#896124;margin-bottom:20px}.history-tools{margin-top:24px}.history-tools summary{font-size:12px;color:var(--muted);cursor:pointer;padding:13px 0;min-height:44px}.history-tools .export{margin-top:5px}.history-tools .cloud-note{margin-top:10px}.history-tools .sync-button{min-height:44px}.calendar-empty{font-size:13px;color:var(--muted);margin:20px 0 10px}.calendar-empty .text-button{padding-left:0;color:var(--accent)}
+    .session-secondary{display:flex;justify-content:space-between;gap:15px}.session-secondary .text-button{padding-left:0;padding-right:0}
+    html[data-screen="exercise"] .top,html[data-screen="rest"] .top{height:76px}
+    html[data-screen="exercise"] main,html[data-screen="rest"] main{padding-top:16px;padding-bottom:24px}
+    html[data-screen="exercise"] .progress-track{margin-bottom:23px}
+    html[data-screen="exercise"] .eyebrow{margin-bottom:15px}
+    html[data-screen="exercise"] .prescription{margin:22px 0}
+    html[data-screen="exercise"] .fields{margin-top:22px}
+    html[data-screen="exercise"] .set-count{margin-top:20px;margin-bottom:8px}
+    html[data-screen="exercise"] .set-markers{margin-top:8px}
+    html[data-screen="exercise"] .actions{margin-top:24px}
+    html[data-screen="rest"] .timer{margin:26px 0 23px}
+    html[data-screen="rest"] .rest-next{margin-top:28px}
+    html[data-screen="rest"] .actions{margin-top:24px}
+    @media(min-width:760px){.app{padding:0 42px}.top{height:120px}main{padding-top:50px;padding-bottom:60px}nav{margin-top:30px}body:before{content:"";position:fixed;top:0;bottom:0;left:calc(50% - 340px);width:1px;background:var(--line)}body:after{content:"";position:fixed;top:0;bottom:0;right:calc(50% - 340px);width:1px;background:var(--line)}}
+    @media(max-width:400px){.app{padding:0 24px}.top{height:86px}main{padding-top:28px}h1{letter-spacing:-1.4px}.choice{padding:21px 0}.fields{gap:12px}.prescription{gap:26px}.timer{letter-spacing:-4px}}@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+  </style>
 </head>
 <body>
-
-<div class="topbar">
-  <div class="tb-logo">6 <span class="arr">→</span> <span class="goal">12</span></div>
-  <div class="tb-right">
-    <div class="tb-week" id="tbWeek">SEM 1</div>
-    <div id="syncDot" style="font-size:14px;cursor:default;">☁️</div>
-    <div class="tb-streak" id="tbStreak">🔥 0</div>
-  </div>
+<div class="app">
+  <header class="top"><button class="brand" data-action="home" aria-label="Entreno, inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M7 5v14M4 8v8M17 5v14M20 8v8M7 12h10"/></svg>Entreno</button><button class="top-action" id="top-action" data-action="home" hidden>Salir</button></header>
+  <main id="view" aria-label="Entrenamiento"></main>
+  <nav id="nav" aria-label="Navegación principal">
+    <button class="nav-button active" data-action="home" aria-current="page" id="nav-home"></button>
+    <button class="nav-button" data-action="history" id="nav-history"></button>
+    <button class="nav-button" data-action="progress" id="nav-progress"></button>
+  </nav>
 </div>
-
-<div id="page-hoy" class="page active">
-  <div id="selectorSection">
-    <div class="selector-label">Tipo de entrenamiento</div>
-    <div class="type-grid">
-      <div class="type-btn" id="typeBtn-push" onclick="selectType('push')">
-        <div class="type-icon">💪</div>
-        <div class="type-name push-col">Push</div>
-      </div>
-      <div class="type-btn" id="typeBtn-pull" onclick="selectType('pull')">
-        <div class="type-icon">🦾</div>
-        <div class="type-name pull-col">Pull</div>
-      </div>
-      <div class="type-btn" id="typeBtn-legs" onclick="selectType('legs')">
-        <div class="type-icon">🦵</div>
-        <div class="type-name legs-col">Legs</div>
-      </div>
-    </div>
-    <div id="variantSection" style="display:none;">
-      <div class="selector-label">Intensidad</div>
-      <div class="variant-grid" id="variantGrid"></div>
-    </div>
-  </div>
-
-  <div id="workoutSection" style="display:none;">
-    <div id="missedBadge" style="display:none;" class="missed-badge">
-      <div class="mb-icon">🔄</div>
-      <div class="mb-text">MAKEUP SESSION — DÍA RECUPERADO</div>
-    </div>
-    <div id="todayHeader"></div>
-    <div id="pullupStrip" style="display:none;"></div>
-    <div id="exerciseList"></div>
-    <div class="form-card">
-      <div class="form-card-title">✓ Registrar sesión</div>
-      <div id="pullupFormField" style="display:none;">
-        <div class="form-group">
-          <label class="form-label">⭐ Dominadas — Máximo hoy</label>
-          <input type="number" class="form-input" id="fPullups" placeholder="ej: 7" inputmode="numeric" min="0" max="50">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Peso corporal (lbs)</label>
-          <input type="number" class="form-input" id="fWeight" placeholder="190" inputmode="decimal">
-        </div>
-        <div class="form-group">
-          <label class="form-label" id="liftLabel">Levantamiento (lbs)</label>
-          <input type="number" class="form-input" id="fLift" placeholder="185" inputmode="numeric">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">¿Cómo te sentiste?</label>
-        <div class="feeling-row">
-          <div class="feeling-btn" onclick="setFeeling('💀')" data-f="💀"><span class="fi">💀</span><span class="fl">Muerto</span></div>
-          <div class="feeling-btn" onclick="setFeeling('😤')" data-f="😤"><span class="fi">😤</span><span class="fl">Duro</span></div>
-          <div class="feeling-btn" onclick="setFeeling('💪')" data-f="💪"><span class="fi">💪</span><span class="fl">Bien</span></div>
-          <div class="feeling-btn" onclick="setFeeling('🔥')" data-f="🔥"><span class="fi">🔥</span><span class="fl">Bestia</span></div>
-        </div>
-      </div>
-      <button class="btn-save" onclick="saveSession()">GANAR STICKER DE HOY</button>
-    </div>
-  </div>
-</div>
-
-<div id="page-stickers" class="page">
-  <div class="page-title">Stickers</div>
-  <div class="page-sub">Tu racha visual</div>
-  <div class="stats-row">
-    <div class="stat-box"><div class="stat-val g" id="sStreak">0</div><div class="stat-lbl">Racha</div></div>
-    <div class="stat-box"><div class="stat-val o" id="sTotal">0</div><div class="stat-lbl">Total</div></div>
-    <div class="stat-box"><div class="stat-val b" id="sWeek">0</div><div class="stat-lbl">Esta sem</div></div>
-  </div>
-  <div class="cal-wrap">
-    <div class="cal-header">
-      <div class="cal-month" id="calMonth"></div>
-      <div class="cal-nav">
-        <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
-        <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
-      </div>
-    </div>
-    <div class="cal-grid" id="calGrid"></div>
-  </div>
-  <div class="chart-card">
-    <div class="chart-card-label">📜 Últimas sesiones</div>
-    <div id="logList"><div class="no-data">Sin sesiones aún</div></div>
-  </div>
-</div>
-
-<div id="page-progreso" class="page">
-  <div class="page-title">Progreso</div>
-  <div class="page-sub">Curvas de desempeño</div>
-  <div class="chart-tabs">
-    <div class="chart-tab active" onclick="selectChart('pullups',this)">Dominadas</div>
-    <div class="chart-tab" onclick="selectChart('weight',this)">Peso</div>
-    <div class="chart-tab" onclick="selectChart('squat',this)">Sentadilla</div>
-    <div class="chart-tab" onclick="selectChart('bench',this)">Banca</div>
-  </div>
-  <div class="chart-card">
-    <div class="chart-card-label" id="chartLabel">⭐ Dominadas</div>
-    <div class="chart-wrap">
-      <canvas id="mainChart"></canvas>
-      <div class="chart-empty" id="chartEmpty" style="display:none;">
-        <div class="chart-empty-icon">📈</div>
-        <div class="chart-empty-text">Registra para ver tu curva</div>
-      </div>
-    </div>
-  </div>
-  <div class="divider"></div>
-  <div class="page-title" style="font-size:24px;margin-bottom:3px;">Plan vs Real</div>
-  <div class="page-sub" style="margin-bottom:12px;">Dominadas por semana</div>
-  <div id="weekTargetsList"></div>
-</div>
-
-<div id="page-reto" class="page">
-  <div class="page-title">El Reto</div>
-  <div class="page-sub">6 → 12 dominadas · 8 semanas</div>
-  <div id="retoContent"></div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<nav class="nav">
-  <div class="nav-item active" onclick="showPage('hoy',this)"><div class="nav-icon">🏋️</div><div class="nav-label">Hoy</div></div>
-  <div class="nav-item" onclick="showPage('stickers',this)"><div class="nav-icon">📅</div><div class="nav-label">Stickers</div></div>
-  <div class="nav-item" onclick="showPage('progreso',this)"><div class="nav-icon">📈</div><div class="nav-label">Progreso</div></div>
-  <div class="nav-item" onclick="showPage('reto',this)"><div class="nav-icon">⭐</div><div class="nav-label">Reto</div></div>
-</nav>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<div id="feedback" class="feedback" role="status" aria-live="polite" hidden></div>
+<input type="file" id="import-file" class="import-file" accept=".json,application/json" aria-label="Importar historial">
+<script id="workout-data" type="application/json">{"push_heavy":{"type":"push","title":"PUSH — FUERZA","muscles":"Pecho · Hombros · Tríceps","duration":"~65 min","variant":"heavy","exercises":[{"name":"Press banca con barra","tag":"","sets":"5×3–5","rest":"3 min","restClass":"rest-l","note":"145 lbs. Pausa 1 seg en pecho. Sube 5 lbs al completar todas las reps.","detail":"Baja 2 seg → pausa 1 seg en pecho → explosivo. Sin rebotar."},{"name":"Press inclinado mancuernas","tag":"","sets":"4×8–10","rest":"2.5 min","restClass":"rest-l","note":"Rango completo. Pronación al tope arriba."},{"name":"A1 · Press militar de pie","tag":"ss","sets":"4×6–8","rest":"→ A2","restClass":"rest-s","note":"Sin apoyo lumbar. Core activado."},{"name":"A2 · Elevaciones laterales cable","tag":"ss","sets":"4×15","rest":"90 seg","restClass":"rest-m","note":"Codo ligeramente doblado. Contracción 1 seg arriba."},{"name":"B1 · Fondos en paralelas","tag":"ss","sets":"3×8–10","rest":"→ B2","restClass":"rest-s","note":"Torso vertical = tríceps dominante."},{"name":"B2 · Pushdown cuerda","tag":"drop","sets":"3×12+drop","rest":"90 seg","restClass":"rest-m","note":"Última serie: baja 30% de peso inmediatamente y va a fallo."},{"name":"Tabata Abs · 8 rondas 20/10","tag":"tabata","sets":"4 min","rest":"—","restClass":"rest-s","note":"Ab wheel · Leg raises · Plank-to-push-up · Pike crunch"},{"name":"HIIT Bici · 8×(30s sprint / 90s recovery)","tag":"cardio","sets":"20 min","rest":"—","restClass":"rest-s","note":"Cooldown 4 min al final."}]},"push_volume":{"type":"push","title":"PUSH — VOLUMEN","muscles":"Pecho inferior · Hombros · Tríceps pump","duration":"~60 min","variant":"volume","exercises":[{"name":"Press declinado con barra","tag":"","sets":"4×10–12","rest":"2 min","restClass":"rest-m","note":"65–70% del peso del día fuerza. Calidad sobre ego."},{"name":"A1 · Cruces cable alto","tag":"ss","sets":"4×15","rest":"→ A2","restClass":"rest-s","note":"Contracción máxima al centro. Pausa 1 seg."},{"name":"A2 · Elevaciones laterales mancuerna","tag":"ss","sets":"4×15","rest":"90 seg","restClass":"rest-m","note":"Sin trampa. Codos ligeramente doblados."},{"name":"B1 · Press Arnold sentado","tag":"ss","sets":"3×12","rest":"→ B2","restClass":"rest-s","note":"Rotación completa del movimiento."},{"name":"B2 · Extensión tríceps sobre cabeza cable","tag":"ss","sets":"3×15","rest":"90 seg","restClass":"rest-m","note":"Cabeza larga del tríceps. Estiramiento máximo."},{"name":"Kickbacks mancuerna unilateral","tag":"","sets":"3×15/lado","rest":"60 seg","restClass":"rest-s","note":"Codo fijo. Solo el antebrazo se mueve."},{"name":"Tabata Abs · 6 rondas 20/10","tag":"tabata","sets":"3 min","rest":"—","restClass":"rest-s","note":"Plank hombros · Bicycle · Scissor kicks · Side plank"},{"name":"Boxeo técnico · ritmo medio","tag":"cardio","sets":"25 min","rest":"—","restClass":"rest-s","note":"Shadowboxing o saco. No al límite."}]},"pull_heavy":{"type":"pull","title":"PULL — FUERZA","muscles":"Espalda · Bíceps · Rear Delts","duration":"~70 min","variant":"heavy","isPullDay":true,"exercises":[{"name":"DOMINADAS SIN ASISTENCIA","tag":"star","sets":"4×máx","rest":"3 min","restClass":"rest-l","note":"Primero, fresco. Máximo esfuerzo. Registra cuántas haces.","detail":"Agarre pronado, ancho de hombros. Baja completo. Sube hasta que el mentón pase la barra. Sin kipping."},{"name":"Peso muerto convencional","tag":"","sets":"4×4–5","rest":"3 min","restClass":"rest-l","note":"Reset completo por rep. Sin rebote. 185 lbs.","detail":"Barra sobre el mediopié. Cadera arriba, pecho arriba, barra pegada al cuerpo."},{"name":"Remo Pendlay con barra","tag":"","sets":"4×6–8","rest":"2.5 min","restClass":"rest-l","note":"Explosivo al subir. 2 seg controlado al bajar. Espalda plana."},{"name":"A1 · Remo unilateral mancuerna","tag":"ss","sets":"3×10/lado","rest":"→ A2","restClass":"rest-s","note":"Codo alto. Retracción escapular total."},{"name":"A2 · Face pulls cuerda","tag":"rp","sets":"3×10+5","rest":"90 seg","restClass":"rest-m","note":"REST-PAUSE: 10 reps → 15 seg pausa → 5 reps más."},{"name":"B1 · Curl barra EZ","tag":"ss","sets":"3×8–10","rest":"→ B2","restClass":"rest-s","note":"Tempo 2-0-1. Sin balanceo."},{"name":"B2 · Curl inclinado mancuernas","tag":"ss","sets":"3×12","rest":"90 seg","restClass":"rest-m","note":"Banco a 45°. Estiramiento máximo abajo."},{"name":"Tabata Abs · 8 rondas 20/10","tag":"tabata","sets":"4 min","rest":"—","restClass":"rest-s","note":"V-ups · Hollow hold · Russian twist · Dead bugs"},{"name":"Boxeo · 5 rondas ×3 min","tag":"cardio","sets":"25 min","rest":"—","restClass":"rest-s","note":"1 min saltar cuerda entre rondas."}]},"pull_volume":{"type":"pull","title":"PULL — VOLUMEN","muscles":"Espalda ancha · Rear Delts · Bíceps","duration":"~65 min","variant":"volume","isPullDay":true,"exercises":[{"name":"Dominadas Grease the Groove","tag":"star","sets":"4×50% max","rest":"3 min","restClass":"rest-l","note":"Si tu máximo es 6 → haz 3 reps. Calidad perfecta. Sin llegar al fallo.","detail":"Series al 50 % de tu máximo registrado, sin llegar al fallo. Prioriza un movimiento completo y controlado."},{"name":"Jalón al pecho barra ancha","tag":"","sets":"4×12","rest":"2 min","restClass":"rest-m","note":"Retracción escapular antes de jalar. Lleva la barra al pecho."},{"name":"A1 · Remo polea baja agarre neutro","tag":"ss","sets":"4×12","rest":"→ A2","restClass":"rest-s","note":"Codos pegados al cuerpo. Aprieta escápulas al llegar."},{"name":"A2 · Pull-over mancuerna en banco","tag":"ss","sets":"4×15","rest":"90 seg","restClass":"rest-m","note":"Estiramiento máximo del dorsal."},{"name":"B1 · Elevaciones posteriores peck deck","tag":"ss","sets":"3×15","rest":"→ B2","restClass":"rest-s","note":"Rear delts. Codos casi rectos. Contracción 1 seg."},{"name":"B2 · Curl predicador cable unilateral","tag":"rp","sets":"3×15+rp","rest":"90 seg","restClass":"rest-m","note":"REST-PAUSE en el último set: fallo → 15 seg → 3–5 reps."},{"name":"Tabata Abs · 6 rondas 20/10","tag":"tabata","sets":"3 min","rest":"—","restClass":"rest-s","note":"Ab wheel · Reverse crunch · Toe touches · Hollow hold"},{"name":"Zona 2 Bici · 40 min","tag":"cardio","sets":"40 min","rest":"—","restClass":"rest-s","note":"110–130 bpm. Ritmo conversacional."}]},"legs_heavy":{"type":"legs","title":"LEGS — FUERZA","muscles":"Cuád · Isquios · Glúteos · Pantorrillas","duration":"~70 min","variant":"heavy","exercises":[{"name":"Sentadilla back squat","tag":"","sets":"5×3–5","rest":"3 min","restClass":"rest-l","note":"185 lbs. Profundidad completa. Rodillas hacia afuera.","detail":"Barra sobre trapecios. Pecho arriba. Por debajo del paralelo. Sube explosivo."},{"name":"Romanian Deadlift","tag":"","sets":"4×6–8","rest":"2.5 min","restClass":"rest-l","note":"Pausa 1 seg abajo. Isquios al límite."},{"name":"Prensa de piernas","tag":"drop","sets":"4×10+drop","rest":"2.5 min","restClass":"rest-l","note":"Última serie: DROP SET — quita 25% × 2 drops seguidos."},{"name":"Sentadilla búlgara con mancuernas","tag":"","sets":"3×10/pierna","rest":"2 min","restClass":"rest-m","note":"Pie trasero elevado. Mayor activación glútea."},{"name":"Curl femoral acostado","tag":"","sets":"3×12","rest":"90 seg","restClass":"rest-m","note":"Pausa 1 seg arriba. Excéntrico 3 seg bajando."},{"name":"Pantorrilla de pie — FST-7","tag":"fst","sets":"7×10","rest":"30 seg","restClass":"rest-s","note":"7 series, 30 seg descanso. Estiramiento completo por rep."},{"name":"Tabata Abs · 8 rondas 20/10","tag":"tabata","sets":"4 min","rest":"—","restClass":"rest-s","note":"Mountain climbers · Flutter kicks · Plank con peso · L-sit"},{"name":"Running Intervals","tag":"cardio","sets":"22 min","rest":"—","restClass":"rest-s","note":"4 min calentamiento · 6×(1 min sprint / 1 min trote) · 4 min cooldown"}]},"legs_volume":{"type":"legs","title":"LEGS — VOLUMEN","muscles":"Glúteos · Isquios · Cuád pump","duration":"~65 min","variant":"volume","exercises":[{"name":"Hip Thrust con barra","tag":"","sets":"4×12","rest":"2 min","restClass":"rest-m","note":"Pausa 2 seg arriba. Máxima contracción glútea."},{"name":"Sentadilla búlgara con mancuernas","tag":"","sets":"4×10/pierna","rest":"2 min","restClass":"rest-m","note":"Pie trasero elevado en banco."},{"name":"A1 · Extensión cuádriceps máquina","tag":"ss","sets":"3×15","rest":"→ A2","restClass":"rest-s","note":"Pausa 1 seg arriba. Excéntrico 2 seg."},{"name":"A2 · Curl femoral sentado máquina","tag":"ss","sets":"3×15","rest":"90 seg","restClass":"rest-m","note":"Sin descanso entre A1 y A2."},{"name":"Step-ups mancuernas banco alto","tag":"","sets":"3×12/pierna","rest":"90 seg","restClass":"rest-m","note":""},{"name":"Pantorrilla unilateral con mancuerna","tag":"","sets":"4×20/pierna","rest":"60 seg","restClass":"rest-s","note":"Rango completo. Sin rebote."},{"name":"Zona 2 · 45 min","tag":"cardio","sets":"45 min","rest":"—","restClass":"rest-s","note":"Carrera suave o bici. 115–130 bpm."}]}}</script>
 <script>
-const STORAGE_KEY='gym_all_in_one_v3';
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzfTo_sfND3O3B3dnh0k7pPYEsWFn7RuVeMP16bshqf7-e9CeF5YhpY9dj3wWOm2SXyfQ/exec';
-const PROGRAM_START='2026-05-07';
-
-const WEEK_TARGETS=[
-  {w:1,pu:6,proto:'4×max en martes · 4×3 GTG jueves',challenge:'Test base — anota tus máximos reales'},
-  {w:2,pu:7,proto:'5×max en martes · 4×3–4 GTG jueves',challenge:'+5 lbs en sentadilla Y press banca'},
-  {w:3,pu:8,proto:'5×max en martes · 4×4 GTG jueves',challenge:'6 de 6 días sin faltar'},
-  {w:4,pu:9,proto:'5×max en martes · 4×4+lastre jueves',challenge:'Medir cintura vs semana 1'},
-  {w:5,pu:9,proto:'5×max en martes · 4×5 GTG jueves',challenge:'+5 lbs acumulados desde inicio'},
-  {w:6,pu:10,proto:'6×max en martes · 4×5+lastre jueves',challenge:'Tabata 10 rondas en 2 sesiones'},
-  {w:7,pu:11,proto:'6×max en martes · 4×6 GTG jueves',challenge:'Sentadilla a 200 lbs totales'},
-  {w:8,pu:12,proto:'Test máximo oficial el martes',challenge:'12 dominadas en video + foto progreso'},
-];
-
-const WORKOUTS={
-  push_heavy:{type:'push',title:'PUSH — FUERZA',muscles:'Pecho · Hombros · Tríceps',duration:'~65 min',variant:'heavy',exercises:[
-    {name:'Press banca con barra',tag:'',sets:'5×3–5',rest:'3 min',restClass:'rest-l',note:'145 lbs. Pausa 1 seg en pecho. Sube 5 lbs al completar todas las reps.',detail:'Baja 2 seg → pausa 1 seg en pecho → explosivo. Sin rebotar.'},
-    {name:'Press inclinado mancuernas',tag:'',sets:'4×8–10',rest:'2.5 min',restClass:'rest-l',note:'Rango completo. Pronación al tope arriba.'},
-    {name:'A1 · Press militar de pie',tag:'ss',sets:'4×6–8',rest:'→ A2',restClass:'rest-s',note:'Sin apoyo lumbar. Core activado.'},
-    {name:'A2 · Elevaciones laterales cable',tag:'ss',sets:'4×15',rest:'90 seg',restClass:'rest-m',note:'Codo ligeramente doblado. Contracción 1 seg arriba.'},
-    {name:'B1 · Fondos en paralelas',tag:'ss',sets:'3×8–10',rest:'→ B2',restClass:'rest-s',note:'Torso vertical = tríceps dominante.'},
-    {name:'B2 · Pushdown cuerda',tag:'drop',sets:'3×12+drop',rest:'90 seg',restClass:'rest-m',note:'Última serie: baja 30% de peso inmediatamente y va a fallo.'},
-    {name:'Tabata Abs · 8 rondas 20/10',tag:'tabata',sets:'4 min',rest:'—',restClass:'rest-s',note:'Ab wheel · Leg raises · Plank-to-push-up · Pike crunch'},
-    {name:'HIIT Bici · 8×(30s sprint / 90s recovery)',tag:'cardio',sets:'20 min',rest:'—',restClass:'rest-s',note:'Cooldown 4 min al final.'},
-  ]},
-  push_volume:{type:'push',title:'PUSH — VOLUMEN',muscles:'Pecho inferior · Hombros · Tríceps pump',duration:'~60 min',variant:'volume',exercises:[
-    {name:'Press declinado con barra',tag:'',sets:'4×10–12',rest:'2 min',restClass:'rest-m',note:'65–70% del peso del día fuerza. Calidad sobre ego.'},
-    {name:'A1 · Cruces cable alto',tag:'ss',sets:'4×15',rest:'→ A2',restClass:'rest-s',note:'Contracción máxima al centro. Pausa 1 seg.'},
-    {name:'A2 · Elevaciones laterales mancuerna',tag:'ss',sets:'4×15',rest:'90 seg',restClass:'rest-m',note:'Sin trampa. Codos ligeramente doblados.'},
-    {name:'B1 · Press Arnold sentado',tag:'ss',sets:'3×12',rest:'→ B2',restClass:'rest-s',note:'Rotación completa del movimiento.'},
-    {name:'B2 · Extensión tríceps sobre cabeza cable',tag:'ss',sets:'3×15',rest:'90 seg',restClass:'rest-m',note:'Cabeza larga del tríceps. Estiramiento máximo.'},
-    {name:'Kickbacks mancuerna unilateral',tag:'',sets:'3×15/lado',rest:'60 seg',restClass:'rest-s',note:'Codo fijo. Solo el antebrazo se mueve.'},
-    {name:'Tabata Abs · 6 rondas 20/10',tag:'tabata',sets:'3 min',rest:'—',restClass:'rest-s',note:'Plank hombros · Bicycle · Scissor kicks · Side plank'},
-    {name:'Boxeo técnico · ritmo medio',tag:'cardio',sets:'25 min',rest:'—',restClass:'rest-s',note:'Shadowboxing o saco. No al límite.'},
-  ]},
-  pull_heavy:{type:'pull',title:'PULL — FUERZA ⭐',muscles:'Espalda · Bíceps · Rear Delts',duration:'~70 min',variant:'heavy',isPullDay:true,isPullHeavy:true,exercises:[
-    {name:'DOMINADAS SIN ASISTENCIA',tag:'star',sets:'Ver protocolo',rest:'3 min',restClass:'rest-l',note:'Primero, fresco. Máximo esfuerzo. Registra cuántas haces.',detail:'Agarre pronado, ancho de hombros. Baja completo. Sube hasta que el mentón pase la barra. Sin kipping.'},
-    {name:'Peso muerto convencional',tag:'',sets:'4×4–5',rest:'3 min',restClass:'rest-l',note:'Reset completo por rep. Sin rebote. 185 lbs.',detail:'Barra sobre el mediopié. Cadera arriba, pecho arriba, barra pegada al cuerpo.'},
-    {name:'Remo Pendlay con barra',tag:'',sets:'4×6–8',rest:'2.5 min',restClass:'rest-l',note:'Explosivo al subir. 2 seg controlado al bajar. Espalda plana.'},
-    {name:'A1 · Remo unilateral mancuerna',tag:'ss',sets:'3×10/lado',rest:'→ A2',restClass:'rest-s',note:'Codo alto. Retracción escapular total.'},
-    {name:'A2 · Face pulls cuerda',tag:'rp',sets:'3×10+5',rest:'90 seg',restClass:'rest-m',note:'REST-PAUSE: 10 reps → 15 seg pausa → 5 reps más.'},
-    {name:'B1 · Curl barra EZ',tag:'ss',sets:'3×8–10',rest:'→ B2',restClass:'rest-s',note:'Tempo 2-0-1. Sin balanceo.'},
-    {name:'B2 · Curl inclinado mancuernas',tag:'ss',sets:'3×12',rest:'90 seg',restClass:'rest-m',note:'Banco a 45°. Estiramiento máximo abajo.'},
-    {name:'Tabata Abs · 8 rondas 20/10',tag:'tabata',sets:'4 min',rest:'—',restClass:'rest-s',note:'V-ups · Hollow hold · Russian twist · Dead bugs'},
-    {name:'Boxeo · 5 rondas ×3 min',tag:'cardio',sets:'25 min',rest:'—',restClass:'rest-s',note:'1 min saltar cuerda entre rondas.'},
-  ]},
-  pull_volume:{type:'pull',title:'PULL — VOLUMEN',muscles:'Espalda ancha · Rear Delts · Bíceps',duration:'~65 min',variant:'volume',isPullDay:true,isPullGTG:true,exercises:[
-    {name:'Dominadas Grease the Groove',tag:'star',sets:'4×50% max',rest:'3 min',restClass:'rest-l',note:'Si tu máximo es 6 → haz 3 reps. Calidad perfecta. Sin llegar al fallo.',detail:'GTG = construir el patrón neurológico. Series fáciles = más reps el martes que viene.'},
-    {name:'Jalón al pecho barra ancha',tag:'',sets:'4×12',rest:'2 min',restClass:'rest-m',note:'Retracción escapular antes de jalar. Lleva la barra al pecho.'},
-    {name:'A1 · Remo polea baja agarre neutro',tag:'ss',sets:'4×12',rest:'→ A2',restClass:'rest-s',note:'Codos pegados al cuerpo. Aprieta escápulas al llegar.'},
-    {name:'A2 · Pull-over mancuerna en banco',tag:'ss',sets:'4×15',rest:'90 seg',restClass:'rest-m',note:'Estiramiento máximo del dorsal.'},
-    {name:'B1 · Elevaciones posteriores peck deck',tag:'ss',sets:'3×15',rest:'→ B2',restClass:'rest-s',note:'Rear delts. Codos casi rectos. Contracción 1 seg.'},
-    {name:'B2 · Curl predicador cable unilateral',tag:'rp',sets:'3×15+rp',rest:'90 seg',restClass:'rest-m',note:'REST-PAUSE en el último set: fallo → 15 seg → 3–5 reps.'},
-    {name:'Tabata Abs · 6 rondas 20/10',tag:'tabata',sets:'3 min',rest:'—',restClass:'rest-s',note:'Ab wheel · Reverse crunch · Toe touches · Hollow hold'},
-    {name:'Zona 2 Bici · 40 min',tag:'cardio',sets:'40 min',rest:'—',restClass:'rest-s',note:'110–130 bpm. Ritmo conversacional.'},
-  ]},
-  legs_heavy:{type:'legs',title:'LEGS — FUERZA',muscles:'Cuád · Isquios · Glúteos · Pantorrillas',duration:'~70 min',variant:'heavy',exercises:[
-    {name:'Sentadilla back squat',tag:'',sets:'5×3–5',rest:'3 min',restClass:'rest-l',note:'185 lbs. Profundidad completa. Rodillas hacia afuera.',detail:'Barra sobre trapecios. Pecho arriba. Por debajo del paralelo. Sube explosivo.'},
-    {name:'Romanian Deadlift',tag:'',sets:'4×6–8',rest:'2.5 min',restClass:'rest-l',note:'Pausa 1 seg abajo. Isquios al límite.'},
-    {name:'Prensa de piernas',tag:'drop',sets:'4×10+drop',rest:'2.5 min',restClass:'rest-l',note:'Última serie: DROP SET — quita 25% × 2 drops seguidos.'},
-    {name:'Sentadilla búlgara con mancuernas',tag:'',sets:'3×10/pierna',rest:'2 min',restClass:'rest-m',note:'Pie trasero elevado. Mayor activación glútea.'},
-    {name:'Curl femoral acostado',tag:'',sets:'3×12',rest:'90 seg',restClass:'rest-m',note:'Pausa 1 seg arriba. Excéntrico 3 seg bajando.'},
-    {name:'Pantorrilla de pie — FST-7',tag:'fst',sets:'7×10',rest:'30 seg',restClass:'rest-s',note:'7 series, 30 seg descanso. Estiramiento completo por rep.'},
-    {name:'Tabata Abs · 8 rondas 20/10',tag:'tabata',sets:'4 min',rest:'—',restClass:'rest-s',note:'Mountain climbers · Flutter kicks · Plank con peso · L-sit'},
-    {name:'Running Intervals',tag:'cardio',sets:'22 min',rest:'—',restClass:'rest-s',note:'4 min calentamiento · 6×(1 min sprint / 1 min trote) · 4 min cooldown'},
-  ]},
-  legs_volume:{type:'legs',title:'LEGS — VOLUMEN',muscles:'Glúteos · Isquios · Cuád pump',duration:'~65 min',variant:'volume',exercises:[
-    {name:'Hip Thrust con barra',tag:'',sets:'4×12',rest:'2 min',restClass:'rest-m',note:'Pausa 2 seg arriba. Máxima contracción glútea.'},
-    {name:'Sentadilla búlgara con mancuernas',tag:'',sets:'4×10/pierna',rest:'2 min',restClass:'rest-m',note:'Pie trasero elevado en banco.'},
-    {name:'A1 · Extensión cuádriceps máquina',tag:'ss',sets:'3×15',rest:'→ A2',restClass:'rest-s',note:'Pausa 1 seg arriba. Excéntrico 2 seg.'},
-    {name:'A2 · Curl femoral sentado máquina',tag:'ss',sets:'3×15',rest:'90 seg',restClass:'rest-m',note:'Sin descanso entre A1 y A2.'},
-    {name:'Step-ups mancuernas banco alto',tag:'',sets:'3×12/pierna',rest:'90 seg',restClass:'rest-m',note:''},
-    {name:'Pantorrilla unilateral con mancuerna',tag:'',sets:'4×20/pierna',rest:'60 seg',restClass:'rest-s',note:'Rango completo. Sin rebote.'},
-    {name:'Zona 2 · 45 min',tag:'cardio',sets:'45 min',rest:'—',restClass:'rest-s',note:'Carrera suave o bici. 115–130 bpm.'},
-  ]},
-};
-
-const LIFT_LABELS={push:'Press banca (lbs)',pull:'Peso muerto (lbs)',legs:'Sentadilla (lbs)'};
-
-let state={sessions:[],startDate:PROGRAM_START};
-let selectedFeeling='';
-let currentChart='pullups';
-let chartInstance=null;
-let calViewDate=new Date();
-let activeTimers={};
-let selectedType=null;
-let selectedVariant=null;
-let isMakeup=false;
-
-// ── DATE ──
-function ldate(d){d=d||new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
-function tday(){return ldate();}
-
-// ── STORAGE ──
-async function loadState(){
-  try{const raw=localStorage.getItem(STORAGE_KEY);if(raw)state=JSON.parse(raw);}catch(e){}
-  if(!state.sessions)state.sessions=[];
-  if(!state.startDate)state.startDate=PROGRAM_START;
-  try{
-    const res=await fetch(`${SCRIPT_URL}?type=gym`,{method:'GET'});
-    const json=await res.json();
-    if(json.status==='ok'&&json.sessions&&json.sessions.length){
-      const cloudDates=new Set(json.sessions.map(s=>s.date+(s.workoutKey||'')));
-      const localOnly=(state.sessions||[]).filter(s=>!cloudDates.has(s.date+(s.workoutKey||'')));
-      state.sessions=[...json.sessions.map(s=>({
-        ...s,
-        date: typeof s.date==='string'&&s.date.length>=10 ? s.date.substring(0,10) : ldate(new Date(s.date)),
-        pullups:s.pullups?parseInt(s.pullups):null,
-        bodyWeight:s.bodyWeight?parseFloat(s.bodyWeight):null,
-        squat:s.squat?parseInt(s.squat):null,
-        bench:s.bench?parseInt(s.bench):null,
-        deadlift:s.deadlift?parseInt(s.deadlift):null,
-      })),...localOnly];
-      state.sessions.sort((a,b)=>(b.ts||0)-(a.ts||0)||(b.date>a.date?1:-1));
-      localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+  'use strict';
+  const WORKOUTS=JSON.parse(document.getElementById('workout-data').textContent);
+  const STORAGE_KEY='gym_all_in_one_v3',DRAFT_KEY='entreno_draft_v1',SYNC_KEY='entreno_sync_pending_v1';
+  const SCRIPT_URL='https://script.google.com/macros/s/AKfycbzfTo_sfND3O3B3dnh0k7pPYEsWFn7RuVeMP16bshqf7-e9CeF5YhpY9dj3wWOm2SXyfQ/exec';
+  const TYPE={push:{name:'Push',muscles:'Pecho, hombros y tríceps'},pull:{name:'Pull',muscles:'Espalda y bíceps'},legs:{name:'Piernas',muscles:'Cuádriceps, isquios y glúteos'}};
+  const ICONS={arrow:'<path d="M5 12h14m-6-6 6 6-6 6"/>',back:'<path d="m14 6-6 6 6 6"/>',check:'<path d="m5 12 4 4L19 6"/>',home:'<path d="M5 7v10M2 9v6M19 7v10M22 9v6M5 12h14"/>',history:'<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4m8-4v4M4 11h16m-11 4h1m4 0h1"/>',progress:'<path d="M4 4v16h16M8 14l4-5 4 3 4-7"/>',pause:'<path d="M9 5v14m6-14v14"/>',play:'<path d="m9 5 10 7-10 7Z"/>'};
+  const icon=name=>'<svg class="'+(name==='arrow'?'arrow':'')+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+ICONS[name]+'</svg>';
+  const view=document.getElementById('view');
+  let state={sessions:[]},draft=null,page='home',selectedType=null,selectedKey=null,metric='weight',timerInterval=null,toastTimeout=null,saving=false,cloudBusy=false,cloudLoaded=false;
+  let pending=[];
+  let historyMode='calendar',calendarDate=new Date(new Date().getFullYear(),new Date().getMonth(),1),detailReturnDate=null;
+  function escapeText(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function localDate(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+  function dateObject(date){return new Date(String(date).slice(0,10)+'T12:00:00');}
+  function dateLabel(date,options={day:'numeric',month:'short'}){const d=dateObject(date);return Number.isNaN(d.getTime())?'Fecha sin registrar':d.toLocaleDateString('es',options);}
+  function workoutLabel(key,type){const w=WORKOUTS[key];return w?`${TYPE[w.type].name} · ${w.variant==='heavy'?'Fuerza':'Volumen'}`:(TYPE[type]?.name||'Entrenamiento');}
+  function readStored(key,fallback){try{return JSON.parse(localStorage.getItem(key))||fallback;}catch{return fallback;}}
+  function normalizeSession(s){if(!s||typeof s!=='object'||!/^\d{4}-\d{2}-\d{2}/.test(String(s.date)))return null;const out={...s,date:String(s.date).slice(0,10)};for(const k of ['pullups','bodyWeight','squat','bench','deadlift','ts','durationSeconds']){out[k]=s[k]!==null&&s[k]!==undefined&&s[k]!==''&&Number.isFinite(Number(s[k]))?Number(s[k]):null;}return out;}
+  function sessionKey(s){return String(s.date)+'|'+(s.workoutKey||s.type||'');}
+  function mergeSessions(existing,incoming){const map=new Map(existing.map(s=>[sessionKey(s),s]));for(const item of incoming){const s=normalizeSession(item);if(!s)continue;const key=sessionKey(s),old=map.get(key);if(!old)map.set(key,s);else{const newer=(s.ts||0)>(old.ts||0);const result=newer?{...old,...s}:{...s,...old};if(!Array.isArray(result.sets)||!result.sets.length)result.sets=Array.isArray(old.sets)&&old.sets.length?old.sets:s.sets;map.set(key,result);}}return [...map.values()].sort((a,b)=>b.date.localeCompare(a.date)||(b.ts||0)-(a.ts||0));}
+  function storeState(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));return true;}catch{notify('No se pudo guardar en este dispositivo. Exporta el historial para conservarlo.');return false;}}
+  function saveDraft(){try{if(draft)localStorage.setItem(DRAFT_KEY,JSON.stringify(draft));else localStorage.removeItem(DRAFT_KEY);}catch{notify('No se pudo guardar el avance en este dispositivo.');}}
+  function notify(text){clearTimeout(toastTimeout);const el=document.getElementById('feedback');el.textContent=text;el.hidden=false;toastTimeout=setTimeout(()=>el.hidden=true,4500);}
+  function frame(name,html,focus=true){page=name;document.documentElement.dataset.screen=name;view.innerHTML=html;document.getElementById('top-action').hidden=!['exercise','rest','summary','overview','variant','detail','day'].includes(name);document.getElementById('nav').hidden=['exercise','rest','summary','overview','variant'].includes(name);for(const id of ['home','history','progress']){const el=document.getElementById('nav-'+id);el.classList.toggle('active',name===id||(['detail','day'].includes(name)&&id==='history'));if(name===id||(['detail','day'].includes(name)&&id==='history'))el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');}if(focus){window.scrollTo(0,0);const heading=view.querySelector('h1');if(heading){heading.tabIndex=-1;heading.focus({preventScroll:true});}}}
+  function back(action='home'){return `<button class="back" data-action="${action}">${icon('back')}Volver</button>`;}
+  function showHome(){stopTick();selectedType=null;selectedKey=null;const today=new Date().toLocaleDateString('es',{weekday:'long',day:'numeric',month:'long'});if(draft&&WORKOUTS[draft.key]){const completed=draft.logs.filter(x=>!x.skipped).length;frame('home',`<p class="eyebrow">Tu sesión en curso</p><h1>${escapeText(workoutLabel(draft.key))}</h1><p class="lead">${completed} de ${draft.queue.length} series registradas. Continúa donde te quedaste.</p><div class="actions"><button class="primary" data-action="resume">Continuar entrenamiento ${icon('arrow')}</button><button class="text-button" data-action="change-workout">Elegir otra rutina</button></div>`);return;}frame('home',`<p class="eyebrow">${escapeText(today)}</p><h1>¿Qué vas a<br>entrenar hoy?</h1><p class="lead">Elige tu rutina. Vamos una serie a la vez.</p><div class="choices">${Object.entries(TYPE).map(([key,t],i)=>`<button class="choice" data-action="type" data-value="${key}"><span class="choice-index">0${i+1}</span><span class="choice-body"><span class="choice-title">${t.name}</span><span class="choice-desc">${t.muscles}</span></span>${icon('arrow')}</button>`).join('')}</div>`);}
+  function showVariant(type){selectedType=type;frame('variant',`${back()}<p class="eyebrow">${TYPE[type].name}</p><h1>¿Cómo quieres<br>entrenar?</h1><div class="choices">${['heavy','volume'].map(v=>{const key=type+'_'+v,w=WORKOUTS[key];return `<button class="choice" data-action="variant" data-value="${key}"><span class="choice-body"><span class="choice-title">${v==='heavy'?'Fuerza':'Volumen'}</span><span class="choice-desc">${v==='heavy'?'Series con menos repeticiones.':'Series con más repeticiones.'} ${w.exercises.length} ejercicios.</span></span>${icon('arrow')}</button>`;}).join('')}</div>`);}
+  function cleanName(name){return name.replace(/^[AB][12]\s*·\s*/,'').replace(/^DOMINADAS SIN ASISTENCIA$/,'Dominadas sin asistencia');}
+  // One continuous pen path per pose; every exercise is mapped explicitly.
+  const EXERCISE_SKETCHES={"bench":"M78 82 C65 84 61 75 66 69 C70 62 82 64 85 72 C89 79 83 83 78 82 C83 89 91 94 103 95 L139 96 C149 105 152 120 158 133 L175.88 141.94 Q182 145 175.16 145 L169.84 145 Q163 145 159.05 139.42 L151.07 128.15 Q146 121 143.12 112.72 L140.88 106.28 Q138 98 129.27 97.25 L103 95 C97 88 97 79 101 72 L111.15 38.78 Q112 36 109.12 35.64 L106.88 35.36 Q104 35 103.34 37.83 L99.27 55.26 Q97 65 98.96 74.81 L103 95 C109 83 115 70 124 60 L130.29 38.44 Q131 36 128.48 35.64 L126.52 35.36 Q124 35 121.46 34.8 L115.68 34.36 Q111 34 106.31 34 L70.6 34 Q67 34 67 30.4 L67 26.88 Q67 24 69.88 24 L72.12 24 Q75 24 75 26.88 L75 41.12 Q75 44 72.12 44 L69.88 44 Q67 44 67 41.12 L67 37.6 Q67 34 70.6 34 L159.4 34 Q163 34 163 30.4 L163 26.88 Q163 24 160.12 24 L157.88 24 Q155 24 155 26.88 L155 41.12 Q155 44 157.88 44 L160.12 44 Q163 44 163 41.12 L163 37.6 Q163 34 159.41 34.22 L139.98 35.44 Q131 36 128.48 44.64 L126.52 51.36 Q124 60 119.37 67.72 L106.81 88.64 Q103 95 96.52 98.6 L91.48 101.4 Q85 105 92.41 105 L141 105 Q151 105 151 115 L151 146.84 Q151 149 148.84 149 L147.16 149 Q145 149 145 146.84 L145 115 Q145 105 135 105 L76 105 Q66 105 66 115 L66 142.48 Q66 145 63.48 145 L61.52 145 Q59 145 59 142.48 L59 114.36 Q59 105 68.36 105 L85 105","incline":"M86 62 C75 64 70 56 74 49 C80 42 91 44 94 52 C96 58 92 63 86 62 L93.04 69.68 Q97 74 100.81 78.45 L120.49 101.41 Q127 109 135 115 L143 121 Q151 127 158.51 133.61 L171.95 145.43 Q176 149 170.6 149 L166.4 149 Q161 149 156.7 145.73 L142.05 134.6 Q136 130 132.04 123.52 L128.96 118.48 Q125 112 120.5 105.89 L99.7 77.67 Q97 74 98.44 69.68 L99.56 66.32 Q101 62 102.79 57.81 L112 36.34 Q113 34 110.48 33.64 L108.52 33.36 Q106 33 105.29 35.44 L100.73 51.08 Q99 57 98.28 63.12 L97.72 67.88 Q97 74 102.78 71.87 L109.16 69.52 Q116 67 119.46 60.58 L128.7 43.41 Q130 41 127.48 39.92 L125.52 39.08 Q123 38 124.81 35.94 L127.48 32.88 Q130 30 133.55 31.42 L136.4 32.56 Q140 34 138.61 37.62 L136.23 43.81 Q135 47 131.76 45.92 L127.71 44.57 Q126 44 127.44 42.92 L128.56 42.08 Q130 41 129.15 42.58 L119.46 60.58 Q116 67 109.16 69.52 L101.27 72.43 Q97 74 98.44 69.68 L99.56 66.32 Q101 62 102.79 57.81 L112 36.34 Q113 34 110.48 33.64 L108.52 33.36 Q106 33 106 30.45 L106 27.88 Q106 25 108.71 25.98 L113.04 27.56 Q117 29 115.98 33.09 L114.83 37.69 Q114 41 110.76 39.92 L108.05 39.02 Q105 38 107.88 36.56 L110.12 35.44 Q113 34 111.8 36.99 L100.71 64.72 Q97 74 103.51 81.59 L124.51 106.09 Q127 109 129.88 111.52 L132.12 113.48 Q135 116 131.21 116.49 L120.28 117.92 Q112 119 106.49 112.72 L71.19 72.49 Q69 70 71.52 67.84 L73.48 66.16 Q76 64 78.22 66.46 L118.62 111.26 Q122 115 127.04 115 L130.96 115 Q136 115 136 120.04 L136 145.48 Q136 148 133.48 148 L131.52 148 Q129 148 129 145.48 L129 120.76 Q129 115 123.24 115 L118.76 115 Q113 115 110.69 120.28 L100.01 144.69 Q99 147 96.48 147 L94.52 147 Q92 147 93.04 144.7 L106 116","decline":"M67 109 C56 112 51 103 56 96 C61 89 72 92 74 100 C77 107 73 110 67 109 L77.88 106.44 Q84 105 89.85 102.71 L120.75 90.62 Q130 87 137.2 93.84 L143.8 100.11 Q150 106 152.16 114.28 L153.84 120.72 Q156 129 163.37 133.35 L173.04 139.07 Q178 142 172.24 142 L167.76 142 Q162 142 159.01 137.08 L150.19 122.55 Q145 114 139.7 105.52 L135.3 98.48 Q130 90 120.49 93.1 L92.73 102.15 Q84 105 85.8 96 L87.2 89 Q89 80 88.14 70.86 L86.34 51.6 Q86 48 89.6 47.64 L92.4 47.36 Q96 47 96 50.62 L96 68 Q96 78 91.94 87.14 L87.86 96.31 Q84 105 91.56 99.24 L97.44 94.76 Q105 89 107.67 79.88 L116.17 50.85 Q117 48 114.12 47.28 L111.88 46.72 Q109 46 106.03 46 L67.6 46 Q64 46 64 42.4 L64 38.88 Q64 36 66.88 36 L69.12 36 Q72 36 72 38.88 L72 53.12 Q72 56 69.12 56 L66.88 56 Q64 56 64 53.12 L64 49.6 Q64 46 67.6 46 L149.4 46 Q153 46 153 42.4 L153 38.88 Q153 36 150.12 36 L147.88 36 Q145 36 145 38.88 L145 53.12 Q145 56 147.88 56 L150.12 56 Q153 56 153 53.12 L153 49.6 Q153 46 149.41 46.2 L126.98 47.45 Q117 48 114.19 57.6 L107.67 79.88 Q105 89 97.44 94.76 L91.56 99.24 Q84 105 75.85 109.89 L67.57 114.86 Q59 120 68.26 116.23 L135.99 88.64 Q140 87 143.24 89.88 L145.76 92.12 Q149 95 144.99 96.65 L70.99 127.12 Q64 130 64 137.56 L64 149.2 Q64 151 62.2 151 L60.8 151 Q59 151 59 149.2 L59 130 Q59 120 68.26 116.23 L130.74 90.77 Q140 87 140 97 L140 148.84 Q140 151 137.84 151 L136.16 151 Q134 151 134 148.84 L134 99","overhead":"M110 43 C101 43 97 35 100 28 C103 21 115 20 119 28 C123 36 117 44 110 43 L108 54 C102 69 100 91 105 112 L95.96 148.14 Q95 152 91.04 152.36 L87.96 152.64 Q84 153 85.12 149.18 L95.09 115.11 Q96 112 99.24 112 L101.76 112 Q105 112 106.68 114.77 L125.38 145.68 Q128 150 133.04 150.36 L136.96 150.64 Q142 151 139.57 146.57 L123.8 117.77 Q119 109 115.64 99.58 L112.27 90.16 Q109 81 108.64 71.28 L108.19 59 Q108 54 103.68 56.52 L100.32 58.48 Q96 61 92.34 57.6 L87.04 52.68 Q82 48 82.25 41.13 L82.85 24.96 Q83 21 86.96 21 L90.04 21 Q94 21 93.82 24.96 L93.29 36.6 Q93 43 98.04 46.96 L103.32 51.11 Q107 54 111.68 54 L115.32 54 Q120 54 124.03 51.63 L130.88 47.6 Q137 44 136.69 36.91 L136.17 24.96 Q136 21 139.96 21 L143.04 21 Q147 21 147.25 24.95 L148.49 44.09 Q149 52 142.88 57.04 L136.72 62.12 Q132 66 127.68 61.68 L123.05 57.05 Q120 54 115.68 54 L112.32 54 Q108 54 104.27 56.18 L100.32 58.48 Q96 61 94.45 56.24 L85.11 27.51 Q83 21 76.16 21 L67.24 21 Q64 21 64 17.76 L64 14.16 Q64 12 66.16 12 L67.84 12 Q70 12 70 14.16 L70 27.84 Q70 30 67.84 30 L66.16 30 Q64 30 64 27.84 L64 24.24 Q64 21 67.24 21 L161.76 21 Q165 21 165 17.76 L165 14.16 Q165 12 162.84 12 L161.16 12 Q159 12 159 14.16 L159 27.84 Q159 30 161.16 30 L162.84 30 Q165 30 165 27.84 L165 24.24 Q165 21 161.76 21 L147 21","lateral_cable":"M114 43 C104 44 100 35 104 28 C108 20 119 22 122 29 C125 37 119 44 114 43 L111.44 50.68 Q110 55 110.18 59.55 L111.62 97.01 Q112 107 109.52 116.69 L102.25 145.1 Q101 150 95.96 150.36 L92.04 150.64 Q87 151 88.63 146.22 L100.84 110.41 Q102 107 105.6 107 L108.4 107 Q112 107 113.55 110.25 L129.81 144.4 Q132 149 137.04 149.72 L140.96 150.28 Q146 151 143.68 146.47 L128.55 116.9 Q124 108 119.79 98.93 L114.79 88.17 Q111 80 110.64 71 L110.16 58.89 Q110 55 107.84 58.24 L106.16 60.76 Q104 64 100.21 64.9 L90.56 67.2 Q83 69 75.25 68.38 L61.04 67.24 Q58 67 55.84 64.84 L53.8 62.8 Q52 61 50.2 62.8 L48.8 64.2 Q47 66 48.14 68.28 L49.7 71.4 Q51 74 53.88 73.64 L56.83 73.27 Q59 73 58.64 70.84 L58.36 69.16 Q58 67 60.18 67.17 L75.25 68.38 Q83 69 90.56 67.2 L100.21 64.9 Q104 64 106.16 60.76 L107.84 58.24 Q110 55 113.3 57.06 L120.24 61.4 Q126 65 128.31 71.39 L137.96 98.11 Q139 101 140.08 103.88 L141.2 106.87 Q142 109 144.16 108.28 L145.84 107.72 Q148 107 147.59 104.76 L146.55 99.05 Q146 96 143.48 97.8 L141.52 99.2 Q139 101 137.95 98.09 L128.31 71.39 Q126 65 120.24 61.4 L113.3 57.06 Q110 55 107.84 58.24 L106.16 60.76 Q104 64 100.21 64.9 L90.56 67.2 Q83 69 75.25 68.38 L67 67.72 Q58 67 57.07 75.98 L50 144 C45 154 58 159 62 150 C66 140 53 136 50 144 L50 148.48 Q50 151 47.48 151 L36.32 151 Q32 151 32 146.68 L32 141.16 Q32 139 34.16 139 L35.84 139 Q38 139 38 141.16 L38 146.68 Q38 151 42.32 151 L69 151","lateral_dumbbell":"M111 42 C102 43 98 35 101 28 C105 20 116 21 120 29 C123 36 117 44 111 42 L109.08 49.68 Q108 54 108.26 58.45 L110.42 96.02 Q111 106 107.97 115.53 L98.31 145.87 Q97 150 92.68 150.36 L89.32 150.64 Q85 151 86.37 146.89 L98.75 109.76 Q100 106 103.96 106 L107.04 106 Q111 106 112.77 109.54 L130.9 145.8 Q133 150 137.68 150.36 L141.32 150.64 Q146 151 143.82 146.84 L128.64 117.86 Q124 109 119.53 100.06 L114.36 89.72 Q110 81 109.28 71.28 L108.47 60.28 Q108 54 102.6 57.24 L98.4 59.76 Q93 63 87.37 65.82 L73.79 72.6 Q67 76 59.44 75.28 L47.83 74.17 Q46 74 45.64 72.2 L45.36 70.8 Q45 69 43.16 69 L41.16 69 Q39 69 39 71.16 L39 78.84 Q39 81 41.16 81 L42.84 81 Q45 81 45 78.84 L45 76.52 Q45 74 47.51 74.23 L59.08 75.28 Q67 76 74.11 72.44 L87.37 65.82 Q93 63 98.4 59.76 L102.6 57.24 Q108 54 113.63 56.82 L118.24 59.12 Q124 62 129.8 64.79 L143.15 71.22 Q151 75 159.64 73.92 L172.86 72.27 Q175 72 175 69.84 L175 68.16 Q175 66 177.16 66 L179.48 66 Q182 66 182 68.52 L182 76.48 Q182 79 179.48 79 L177.52 79 Q175 79 175 76.48 L175 74.52 Q175 72 172.5 72.31 L159.64 73.92 Q151 75 143.15 71.22 L129.8 64.79 Q124 62 118.24 59.12 L108 54","dip":"M111 44 C102 43 98 36 101 29 C105 22 116 23 119 31 C122 38 117 45 111 44 L109.08 52.32 Q108 57 108.23 61.8 L109.51 88.01 Q110 98 115.3 106.48 L120.02 114.04 Q125 122 119.96 129.92 L113.16 140.6 Q111 144 107.4 142.2 L104.6 140.8 Q101 139 103.47 135.82 L110.71 126.52 Q115 121 111.04 115.24 L105.88 107.74 Q104 105 106.16 102.48 L107.84 100.52 Q110 98 112.9 99.62 L126.76 107.38 Q135 112 132.12 121 L128.21 133.21 Q127 137 123.04 136.64 L119.96 136.36 Q116 136 117.53 132.33 L123.06 119.06 Q126 112 120.24 106.96 L115.76 103.04 Q110 98 109.63 90.36 L108.24 61.82 Q108 57 103.68 59.16 L100.32 60.84 Q96 63 94.07 67.43 L87.09 83.49 Q86 86 88.52 87.08 L90.48 87.92 Q93 89 94.09 86.49 L101.52 69.4 Q103 66 104.8 62.76 L106.2 60.24 Q108 57 111.54 58.09 L116.32 59.56 Q121 61 123.33 65.31 L132.53 82.28 Q134 85 132.2 87.52 L130.8 89.48 Q129 92 127.53 89.28 L118.33 72.31 Q116 68 113.12 64.04 L110.84 60.91 Q108 57 103.68 59.16 L100.32 60.84 Q96 63 94.07 67.43 L88.01 81.38 Q86 86 80.96 86 L74.88 86 Q72 86 72 83.12 L72 80.88 Q72 78 74.88 78 L91.12 78 Q94 78 94 80.88 L94 83.12 Q94 86 91.12 86 L79.92 86 Q72 86 72 93.92 L72 148.84 Q72 151 69.84 151 L68.16 151 Q66 151 66 148.84 L66 88 Q66 78 76 78 L84 78 Q94 78 103.85 79.72 L127.96 83.94 Q134 85 140.12 85.36 L148.48 85.85 Q151 86 151 83.48 L151 81.52 Q151 79 148.48 79 L130.52 79 Q128 79 128 81.52 L128 83.48 Q128 86 130.52 86 L142.72 86 Q151 86 151 94.28 L151 148.48 Q151 151 153.52 151 L155.48 151 Q158 151 158 148.48 L158 81.52 Q158 79 155.48 79 L151 79","pushdown":"M96 43 C86 43 81 36 85 29 C89 21 100 23 103 31 C106 38 100 45 96 43 L94.72 51.32 Q94 56 93.69 60.73 L91.65 92.02 Q91 102 89.59 111.9 L84.56 147.08 Q84 151 80.04 151 L76.96 151 Q73 151 73.92 147.15 L83.36 107.67 Q84 105 86.52 103.92 L88.48 103.08 Q91 102 92.18 104.47 L109.4 140.55 Q112 146 117.76 147.8 L123.53 149.6 Q128 151 123.68 149.2 L120.32 147.8 Q116 146 114.81 141.47 L107.53 113.67 Q105 104 102.77 94.25 L95.5 62.53 Q94 56 99.4 59.96 L103.6 63.04 Q109 67 109 73.7 L109 79.8 Q109 87 114.73 91.36 L132.72 105.03 Q134 106 135.44 105.28 L136.56 104.72 Q138 104 139.14 105.14 L141.2 107.2 Q143 109 144.63 107.04 L146.34 104.99 Q148 103 145.84 101.56 L144.16 100.44 Q142 99 140.05 100.71 L136.88 103.48 Q134 106 130.95 103.68 L114.73 91.36 Q109 87 109 79.8 L109 73.7 Q109 67 103.6 63.04 L96.9 58.13 Q94 56 96.16 58.88 L97.84 61.12 Q100 64 99.66 67.58 L98.72 77.44 Q98 85 104.2 89.39 L118.28 99.37 Q122 102 126.32 103.44 L129.68 104.56 Q134 106 136.53 102.21 L140.4 96.4 Q144 91 144.85 84.57 L151 38 C143 34 147 22 156 24 C164 27 160 38 151 38 L165.72 32.88 Q174 30 174 38.77 L174 146.04 Q174 150 170.04 150 L166.96 150 Q163 150 163 146.04 L163 39.72 Q163 30 172.72 30 L180.28 30 Q190 30 190 39.72 L190 146.76 Q190 150 186.76 150 L182.8 150 Q181 150 181 148.2 L181 146.8 Q181 145 182.8 145 L190 145","cable_fly":"M110 45 C101 45 98 37 101 30 C105 23 117 24 120 32 C123 39 116 47 110 45 L108.72 52.68 Q108 57 108.18 61.38 L109.58 95.01 Q110 105 106.47 114.35 L94.66 145.61 Q93 150 88.32 150.36 L84.68 150.64 Q80 151 81.6 146.59 L94.26 111.78 Q96 107 101.04 106.28 L104.96 105.72 Q110 105 112.4 109.49 L131.62 145.54 Q134 150 139.04 150.36 L142.96 150.64 Q148 151 145.58 146.56 L128.79 115.78 Q124 107 120.95 97.48 L110.18 63.81 Q108 57 102.6 61.68 L98.4 65.32 Q93 70 89.11 75.99 L84.68 82.8 Q80 90 86.71 95.36 L102.58 108.07 Q105 110 107.52 108.2 L109.48 106.8 Q112 105 109.42 103.28 L91.83 91.55 Q85 87 90.04 80.52 L95.68 73.26 Q99 69 102.24 64.68 L104.76 61.32 Q108 57 112.39 60.14 L116.96 63.4 Q122 67 126.78 70.94 L137.29 79.63 Q145 86 137.63 92.76 L122.7 106.44 Q121 108 119.2 106.56 L117.8 105.44 Q116 104 117.63 102.37 L131.42 88.58 Q137 83 131.6 77.24 L126.24 71.52 Q122 67 116.96 63.4 L113.04 60.6 Q108 57 103.32 61.06 L98.4 65.32 Q93 70 89.11 75.99 L84.68 82.8 Q80 90 86.71 95.36 L97.19 103.75 Q105 110 98.85 102.11 L38 24 C30 24 30 36 38 36 C46 36 46 24 38 24 L30.96 24 Q27 24 27 27.96 L27 148.48 Q27 151 29.52 151 L31.48 151 Q34 151 34 148.48 L34 46 Q34 36 40.92 43.22 L102.86 107.77 Q105 110 107.52 108.2 L110.79 105.86 Q112 105 113.44 104.64 L114.56 104.36 Q116 104 117.16 104.93 L119.2 106.56 Q121 108 122.41 106.17 L185 25 C177 25 177 37 185 37 C193 37 193 25 185 25 L192.68 25 Q197 25 197 29.32 L197 148.48 Q197 151 194.48 151 L192.52 151 Q190 151 190 148.48 L190 37","arnold":"M111 44 C102 44 98 36 102 29 C105 22 117 22 120 30 C123 37 117 45 111 44 L108.44 52.96 Q107 58 107.2 63.24 L108.62 101.01 Q109 111 118.62 113.75 L127.38 116.25 Q137 119 138.84 128.83 L142.07 146.05 Q143 151 148.04 151 L154.12 151 Q157 151 154.12 151 L151.88 151 Q149 151 148.68 148.14 L146.1 124.94 Q145 115 135.06 113.9 L116.92 111.88 Q109 111 101.44 113.52 L95.56 115.48 Q88 118 86.81 125.88 L83.76 146.02 Q83 151 77.96 151 L73.32 151 Q69 151 73.32 151 L76.68 151 Q81 151 81.24 146.69 L82.47 124.46 Q83 115 92.36 113.56 L99.64 112.44 Q109 111 108.64 101.54 L107.23 64.13 Q107 58 102.32 61.96 L98.68 65.04 Q94 69 89.5 73.16 L85.68 76.68 Q81 81 79.19 74.89 L73.78 56.63 Q73 54 75.52 52.92 L77.48 52.08 Q80 51 81.04 53.54 L86.03 65.65 Q87 68 89.52 68.36 L91.48 68.64 Q94 69 95.94 67.36 L102.32 61.96 Q107 58 112.62 60.46 L117.24 62.48 Q123 65 127.75 69.12 L132.6 73.32 Q138 78 139.96 71.13 L145.16 52.96 Q146 50 143.12 48.92 L140.88 48.08 Q138 47 137.07 49.93 L132.98 62.89 Q132 66 128.76 65.64 L126.24 65.36 Q123 65 120.01 63.69 L112.62 60.46 Q107 58 102.32 61.96 L98.68 65.04 Q94 69 89.5 73.16 L85.68 76.68 Q81 81 79.19 74.89 L73.61 56.07 Q73 54 70.84 54 L69.16 54 Q67 54 66.58 51.88 L65.72 47.6 Q65 44 68.65 43.57 L77.92 42.48 Q82 42 83.08 45.96 L83.92 49.04 Q85 53 80.91 53.34 L77.32 53.64 Q73 54 74.23 58.16 L79.19 74.89 Q81 81 85.68 76.68 L89.5 73.16 Q94 69 98.68 65.04 L102.32 61.96 Q107 58 112.62 60.46 L117.24 62.48 Q123 65 127.75 69.12 L132.6 73.32 Q138 78 139.96 71.13 L145.28 52.52 Q146 50 148.52 50.72 L150.48 51.28 Q153 52 153.9 49.54 L155.56 44.96 Q157 41 152.83 40.37 L140.72 38.56 Q137 38 135.92 41.6 L135.08 44.4 Q134 48 137.71 48.62 L141.68 49.28 Q146 50 144.8 54.21 L139.96 71.13 Q138 78 132.6 73.32 L127.75 69.12 Q123 65 117.24 62.48 L112.76 60.52 Q107 58 106.78 64.28 L105.35 105.01 Q105 115 95 115 L79.52 115 Q77 115 77 117.52 L77 119.48 Q77 122 79.52 122 L142.84 122 Q145 122 145 124.16 L145 125.84 Q145 128 142.84 128 L123.28 128 Q115 128 115 136.28 L115 148.48 Q115 151 112.48 151 L110.52 151 Q108 151 108 148.48 L108 136.28 Q108 128 99.87 126.43 L77 122","overhead_cable":"M109 48 C101 49 96 40 100 33 C105 25 116 28 118 36 C121 43 115 50 109 48 L107.08 55.68 Q106 60 106.27 64.44 L108.39 99.02 Q109 109 106.04 118.55 L97.38 146.53 Q96 151 91.32 151 L87.68 151 Q83 151 84.51 146.57 L95.6 114.1 Q97 110 101.32 109.64 L104.68 109.36 Q109 109 110.9 112.9 L126.78 145.46 Q129 150 134.04 150.36 L137.96 150.64 Q143 151 140.57 146.57 L124.8 117.77 Q120 109 117.25 99.38 L108.13 67.46 Q106 60 113.2 57.12 L118.8 54.88 Q126 52 128.45 44.64 L132.61 32.17 Q134 28 130.4 25.48 L126.38 22.66 Q124 21 121.48 22.44 L119.52 23.56 Q117 25 119.65 26.18 L122.76 27.56 Q126 29 124.94 32.38 L122.8 39.24 Q121 45 116.73 49.27 L108.17 57.83 Q106 60 103.12 58.92 L100.88 58.08 Q98 57 99.82 54.52 L107.56 44.03 Q112 38 116.32 31.88 L121.96 23.9 Q124 21 127.24 19.56 L131.32 17.75 Q133 17 133.36 18.8 L133.64 20.2 Q134 22 132.17 21.82 L127.6 21.36 Q124 21 127.39 22.26 L175 40 C172 33 181 29 186 35 C191 42 181 47 175 40 L185.88 40 Q192 40 192 46.12 L192 147.12 Q192 150 189.12 150 L186.88 150 Q184 150 184 147.12 L184 56.56 Q184 49 191.56 49 L197.44 49 Q205 49 205 56.56 L205 147.12 Q205 150 202.12 150 L198.8 150 Q197 150 195.2 150 L192 150","kickback":"M156 60 C146 63 140 55 143 48 C147 40 158 42 162 49 C166 56 162 61 156 60 L147.04 67.68 Q142 72 137.03 76.4 L113.66 97.1 Q107 103 103.76 111.28 L101.24 117.72 Q98 126 100.49 134.54 L103.79 145.84 Q105 150 100.68 150.36 L97.32 150.64 Q93 151 92.41 146.71 L90.29 131.33 Q89 122 95.48 115.16 L100.66 109.69 Q107 103 112.76 110.2 L117.24 115.8 Q123 123 126.59 131.49 L132.16 144.64 Q134 149 138.68 149.72 L142.32 150.28 Q147 151 142.32 150.28 L138.68 149.72 Q134 149 132.68 144.45 L127.35 126.1 Q125 118 118.52 112.6 L113.48 108.4 Q107 103 113.31 97.41 L137.41 76.06 Q142 72 137.32 75.96 L133.68 79.04 Q129 83 122.87 83 L116.84 83 Q110 83 103.58 85.35 L82.27 93.17 Q80 94 78.92 91.84 L78.02 90.04 Q77 88 74.84 88.72 L73.16 89.28 Q71 90 71.72 92.16 L74.03 99.08 Q75 102 77.88 100.92 L81.03 99.74 Q83 99 81.92 97.2 L81.08 95.8 Q80 94 81.97 93.28 L103.58 85.35 Q110 83 116.84 83 L122.87 83 Q129 83 133.68 79.04 L137.32 75.96 Q142 72 145.64 76.94 L150.96 84.16 Q156 91 159.27 98.84 L163.92 110.02 Q166 115 171.4 115 L177.74 115 Q181 115 177.76 115.36 L175.24 115.64 Q172 116 171.48 112.78 L169.44 100 Q168 91 160.64 85.62 L150.07 77.9 Q142 72 134.51 78.63 L111.52 99 Q107 103 108.8 108.76 L110.2 113.24 Q112 119 118.02 119.46 L141.03 121.23 Q151 122 161 122 L187 122 Q197 122 197 132 L197 147.48 Q197 150 194.48 150 L192.52 150 Q190 150 190 147.48 L190 132 Q190 122 180.01 121.62 L121.99 119.38 Q112 119 110.3 128.85 L107.43 145.52 Q107 148 104.48 148 L102.52 148 Q100 148 100.57 145.54 L106 122","pullup":"M112 55 C103 55 100 47 103 40 C107 32 118 34 121 41 C124 49 117 57 112 55 L110.08 63.32 Q109 68 109.24 72.8 L110.58 99.61 Q111 108 115.32 115.2 L118.68 120.8 Q123 128 117.91 134.68 L109.47 145.76 Q107 149 104.12 146.12 L101.88 143.88 Q99 141 101.97 138.21 L109.95 130.74 Q115 126 111.76 119.88 L106.86 110.62 Q106 109 107.8 108.64 L109.2 108.36 Q111 108 112.54 109 L126.85 118.34 Q134 123 130.04 130.56 L124.43 141.28 Q123 144 120.12 142.92 L117.88 142.08 Q115 141 116.64 138.4 L122.91 128.47 Q127 122 121.24 116.96 L116.76 113.04 Q111 108 110.62 100.36 L109.27 73.31 Q109 68 104.32 70.52 L100.68 72.48 Q96 75 92.68 70.85 L85.76 62.2 Q80 55 79.71 45.78 L79.1 26.32 Q79 23 82.24 22.28 L84.76 21.72 Q88 21 88.22 24.31 L89.54 44.14 Q90 51 94.68 56.04 L101.36 63.23 Q103 65 105.16 66.08 L106.84 66.92 Q109 68 111.35 68.54 L117.32 69.92 Q122 71 125.66 67.89 L134.8 60.12 Q142 54 143.46 44.66 L146.49 25.28 Q147 22 143.76 21.28 L141.24 20.72 Q138 20 137.65 23.3 L135.73 41.16 Q135 48 129.96 52.68 L124.66 57.6 Q121 61 116.68 63.52 L113.32 65.48 Q109 68 104.6 70.37 L100.68 72.48 Q96 75 92.68 70.85 L85.76 62.2 Q80 55 79.71 45.78 L79.27 31.67 Q79 23 70.36 22.28 L57.15 21.18 Q55 21 55 18.84 L55 17.16 Q55 15 57.16 15 L167.84 15 Q170 15 170 17.16 L170 18.84 Q170 21 167.84 21.09 L150.32 21.86 Q147 22 143.76 21.28 L141.24 20.72 Q138 20 134.68 20.07 L91.32 20.93 Q88 21 84.76 21.72 L79 23","deadlift":"M129 48 C120 49 116 42 119 35 C123 28 134 29 138 36 C141 43 135 49 129 48 L120.68 56.96 Q116 62 112.18 67.72 L97.52 89.72 Q92 98 89.84 107.72 L88.16 115.28 Q86 125 92.37 132.65 L101.83 143.99 Q106 149 112.48 149.72 L118.99 150.44 Q124 151 118.96 151 L115.04 151 Q110 151 105.88 148.1 L86.64 134.56 Q83 132 81.92 127.68 L81.08 124.32 Q80 120 82.13 116.09 L87.68 105.92 Q92 98 98.77 103.96 L109.66 113.54 Q117 120 118.08 129.72 L119.27 140.4 Q120 147 126.48 148.44 L133.08 149.91 Q138 151 132.96 151 L129.04 151 Q124 151 123.17 146.03 L121.44 135.64 Q120 127 115.62 119.41 L110 109.66 Q105 101 107.71 91.38 L114.1 68.73 Q116 62 117.44 68.84 L118.56 74.16 Q120 81 119.86 87.99 L119.06 129.12 Q119 132 116.12 132 L113.88 132 Q111 132 110.87 129.12 L109.39 94.99 Q109 86 111.52 77.36 L114.13 68.43 Q116 62 119.96 67.4 L123.04 71.6 Q127 77 127.75 83.65 L132.71 127.4 Q133 130 130.48 130.72 L128.52 131.28 Q126 132 125.75 129.39 L122.95 99.95 Q122 90 119.9 80.22 L117.46 68.83 Q116 62 117.44 68.84 L118.56 74.16 Q120 81 119.86 87.99 L119.2 122 Q119 132 109 132 L57.12 132 Q51 132 51 125.88 L51 118.6 Q51 115 54.6 115 L57.4 115 Q61 115 61 118.6 L61 147.4 Q61 151 57.4 151 L54.6 151 Q51 151 51 147.4 L51 138.84 Q51 132 57.84 132 L170.88 132 Q177 132 177 125.88 L177 118.6 Q177 115 173.4 115 L170.6 115 Q167 115 167 118.6 L167 147.4 Q167 151 170.6 151 L173.4 151 Q177 151 177 147.4 L177 138.84 Q177 132 170.17 131.69 L133 130","row_bar":"M150 69 C141 72 135 65 138 58 C141 51 153 52 157 59 C161 66 157 70 150 69 L141.68 77.32 Q137 82 131.34 85.43 L106.4 100.52 Q99 105 96.48 113.28 L94.49 119.81 Q92 128 94.16 136.28 L96.64 145.77 Q98 151 92.6 151 L84.8 151 Q83 151 84.8 151 L86.2 151 Q88 151 87.58 149.25 L84.16 135 Q82 126 87.82 118.81 L92.88 112.56 Q99 105 105.54 112.2 L112.27 119.6 Q119 127 125.54 134.57 L134.91 145.42 Q138 149 142.68 149.72 L146.32 150.28 Q151 151 146.26 151 L142.04 151 Q137 151 133.19 147.71 L122.57 138.54 Q115 132 111.84 122.51 L109.16 114.49 Q106 105 114.03 99.04 L130.98 86.46 Q137 82 130.88 86.32 L125.49 90.12 Q120 94 121.8 100.48 L123.2 105.52 Q125 112 131.07 109.11 L143.66 103.12 Q146 102 147.44 104.16 L148.56 105.84 Q150 108 148.05 109.72 L138.07 118.52 Q133 123 126.88 120.12 L122.12 117.88 Q116 115 115.66 108.24 L115.36 102.2 Q115 95 121.21 91.33 L132.78 84.49 Q137 82 134.12 85.96 L131.88 89.04 Q129 93 130.19 97.75 L132.84 108.36 Q135 117 143.91 117 L160.68 117 Q165 117 165 112.68 L165 107.88 Q165 105 167.88 105 L170.12 105 Q173 105 173 107.88 L173 127.12 Q173 130 170.12 130 L167.88 130 Q165 130 165 127.12 L165 121.68 Q165 117 160.32 117 L114.32 117 Q110 117 110 112.68 L110 107.88 Q110 105 107.12 105 L104.88 105 Q102 105 102 107.88 L102 127.12 Q102 130 104.88 130 L107.12 130 Q110 130 110 127.12 L110 121.68 Q110 117 114.68 116.87 L140.96 116.14 Q146 116 146 110.96 L146 102","row_single":"M154 68 C145 71 138 63 141 56 C145 49 157 51 160 59 C162 66 159 70 154 68 L145.04 75.68 Q140 80 134.34 83.46 L112.53 96.79 Q104 102 98.38 110.27 L92.19 119.37 Q87 127 83.76 135.64 L79.52 146.96 Q78 151 73.68 151 L69.96 151 Q66 151 69.96 151 L73.04 151 Q77 151 77.78 147.12 L80.2 135 Q82 126 88.2 119.23 L99.86 106.51 Q104 102 106.88 107.4 L109.44 112.19 Q112 117 117.4 117.72 L121.6 118.28 Q127 119 132.45 119 L137.24 119 Q143 119 137.33 118 L130.13 116.73 Q126 116 123.84 112.4 L122.16 109.6 Q120 106 122.56 102.67 L136.26 84.86 Q140 80 144.68 83.96 L148.32 87.04 Q153 91 155 96.8 L161.24 114.89 Q163 120 168.4 120 L173.32 120 Q178 120 173.32 120 L169.68 120 Q165 120 164.08 115.41 L160.52 97.58 Q159 90 152.16 86.4 L146.04 83.18 Q140 80 133.52 82.16 L128.48 83.84 Q122 86 116.7 90.31 L111.76 94.32 Q106 99 113.41 98.68 L126.26 98.12 Q129 98 130.08 95.48 L130.92 93.52 Q132 91 134.57 91.96 L137.12 92.92 Q140 94 139.45 97.03 L138.59 101.73 Q138 105 134.76 104.28 L130.76 103.39 Q129 103 129 101.2 L129 99.8 Q129 98 127.2 98.08 L113.41 98.68 Q106 99 111.76 94.32 L116.7 90.31 Q122 86 128.48 83.84 L134.18 81.94 Q140 80 144.68 83.96 L148.32 87.04 Q153 91 155 96.8 L159.74 110.55 Q163 120 173 120 L187 120 Q197 120 197 130 L197 148.48 Q197 151 194.48 151 L192.52 151 Q190 151 190 148.48 L190 130 Q190 120 180 120 L115 120 Q105 120 105 130 L105 148.48 Q105 151 102.48 151 L100.52 151 Q98 151 98 148.48 L98 130 Q98 120 107.99 119.66 L127 119","facepull":"M102 49 C92 49 88 40 92 34 C96 26 107 28 111 35 C113 43 108 50 102 49 L100.08 57.32 Q99 62 99.2 66.8 L100.57 99.01 Q101 109 98.47 118.67 L91.19 146.47 Q90 151 85.32 151 L81.68 151 Q77 151 78.41 146.54 L88.8 113.79 Q90 110 93.96 109.64 L97.04 109.36 Q101 109 102.89 112.5 L118.46 141.29 Q121 146 126.04 147.8 L130.93 149.55 Q135 151 130.68 151 L127.32 151 Q123 151 122.17 146.76 L116.92 119.81 Q115 110 111.84 100.51 L100.87 67.6 Q99 62 103.68 65.6 L107.32 68.4 Q112 72 117.62 73.8 L128 77.12 Q137 80 132.77 71.55 L124.82 55.64 Q124 54 122.2 54.36 L120.8 54.64 Q119 55 119.98 56.55 L127.33 68.18 Q131 74 124.16 73.28 L117.87 72.62 Q112 72 107.32 68.4 L103.35 65.34 Q99 62 104.04 64.16 L107.96 65.84 Q113 68 118.39 67 L132.97 64.3 Q140 63 134.6 58.32 L127.12 51.84 Q125 50 122.84 51.8 L120.41 53.82 Q119 55 120.8 54.64 L122.2 54.36 Q124 54 125.75 53.45 L185 35 C178 30 181 22 189 24 C196 28 192 38 185 35 L193.32 32.44 Q198 31 198 35.9 L198 148.48 Q198 151 195.48 151 L193.52 151 Q191 151 191 148.48 L191 49.2 Q191 42 198.2 42 L203.8 42 Q211 42 211 49.2 L211 148.48 Q211 151 208.48 151 L206.16 151 Q204 151 201.84 151 L198 151","curl_bar":"M111 44 C101 43 98 35 102 28 C107 21 118 23 120 31 C122 39 117 45 111 44 L109.08 51.68 Q108 56 108.17 60.45 L109.62 98.01 Q110 108 106.84 117.49 L97.37 145.89 Q96 150 91.68 150.36 L88.32 150.64 Q84 151 85.22 146.84 L94.57 114.89 Q96 110 101.04 109.28 L104.96 108.72 Q110 108 112.19 112.6 L127.83 145.44 Q130 150 135.04 150.36 L138.96 150.64 Q144 151 141.7 146.5 L127.56 118.9 Q123 110 120.32 100.36 L109.47 61.29 Q108 56 103.32 58.88 L99.68 61.12 Q95 64 93.83 69.37 L90.14 86.23 Q88 96 95.71 89.63 L108.89 78.75 Q111 77 109.92 74.48 L109.08 72.52 Q108 70 105.26 70 L83.88 70 Q81 70 81 67.12 L81 64.16 Q81 62 83.16 62 L84.84 62 Q87 62 87 64.16 L87 75.84 Q87 78 84.84 78 L83.16 78 Q81 78 81 75.84 L81 72.88 Q81 70 83.88 70 L93.1 70 Q96 70 98.52 71.44 L100.48 72.56 Q103 74 105.6 72.7 L108.12 71.44 Q111 70 113.94 71.31 L116.76 72.56 Q120 74 123.36 72.88 L127.68 71.44 Q132 70 136.55 70 L147.12 70 Q150 70 150 67.12 L150 64.16 Q150 62 147.84 62 L146.16 62 Q144 62 144 64.16 L144 75.84 Q144 78 146.16 78 L147.84 78 Q150 78 150 75.84 L150 72.88 Q150 70 147.12 70 L136.9 70 Q132 70 128.04 72.88 L124.96 75.12 Q121 78 124.24 81.67 L130.6 88.88 Q136 95 134.45 86.99 L131.04 69.4 Q130 64 125.32 61.12 L119.76 57.7 Q117 56 113.76 56 L111.24 56 Q108 56 105.24 57.7 L99.68 61.12 Q95 64 93.83 69.37 L90.14 86.23 Q88 96 95.71 89.63 L111 77","curl_incline":"M94 60 C84 62 78 53 82 46 C86 39 98 41 101 49 C104 56 99 61 94 60 L97.2 68.96 Q99 74 101.66 78.65 L114.09 100.4 Q119 109 128.36 112.24 L135.64 114.76 Q145 118 147.95 127.45 L153.39 144.83 Q155 150 160.4 150.36 L165.69 150.71 Q170 151 165.68 151 L162.32 151 Q158 151 157.08 146.78 L153.14 128.77 Q151 119 141.46 116.02 L125.48 111.03 Q119 109 113.24 112.6 L108.76 115.4 Q103 119 102.37 125.76 L100.47 145.98 Q100 151 94.96 151 L90.32 151 Q86 151 90.32 151 L93.68 151 Q98 151 97.87 146.68 L97.26 126.55 Q97 118 104.92 114.76 L111.08 112.24 Q119 109 114.75 101.57 L103.51 81.89 Q99 74 93.96 81.56 L90.04 87.44 Q85 95 91.26 88.41 L102.25 76.85 Q104 75 105.8 76.8 L107.2 78.2 Q109 80 107.42 82 L92.02 101.44 Q90 104 86.76 103.64 L84.24 103.36 Q81 103 80.64 99.76 L80.36 97.24 Q80 94 82.25 91.64 L95.77 77.4 Q99 74 102.96 76.52 L106.04 78.48 Q110 81 112.41 85.02 L117.68 93.8 Q122 101 127.44 94.6 L137.35 82.94 Q139 81 140.8 82.8 L142.2 84.2 Q144 86 142.65 88.16 L131.11 106.63 Q129 110 125.04 109.64 L121.96 109.36 Q118 109 116.91 105.18 L111.29 85.51 Q110 81 106.04 78.48 L102.96 76.52 Q99 74 96.4 77.91 L90.04 87.44 Q85 95 91.26 88.41 L102.76 76.3 Q104 75 105.8 75 L107.2 75 Q109 75 109.57 73.29 L110.92 69.24 Q112 66 108.71 65.1 L104.96 64.08 Q101 63 99.92 66.96 L98.58 71.89 Q98 74 100.16 74.36 L101.84 74.64 Q104 75 102.49 76.59 L91.26 88.41 Q85 95 90.04 87.44 L93.96 81.56 Q99 74 103.51 81.89 L116.73 105.02 Q119 109 122.24 112.24 L124.76 114.76 Q128 118 123.44 118.48 L115.84 119.28 Q109 120 105.01 114.39 L78.48 77.07 Q77 75 78.8 73.2 L80.2 71.8 Q82 70 83.52 72.04 L108.63 105.78 Q114 113 123 113 L130 113 Q139 113 139 122 L139 149.48 Q139 152 136.48 152 L134.52 152 Q132 152 132 149.48 L132 121.65 Q132 113 123.72 115.52 L117.28 117.48 Q109 120 105.65 127.98 L96 151","lat_pulldown":"M113 67 C103 68 99 59 103 52 C107 44 119 46 122 54 C124 61 119 69 113 67 L111.08 75.32 Q110 80 110.13 84.8 L110.73 107 Q111 117 120.92 118.24 L133.08 119.76 Q143 121 144.64 130.86 L147.11 145.67 Q148 151 153.4 151 L158.68 151 Q163 151 158.68 151 L155.32 151 Q151 151 150.48 146.71 L148.2 127.93 Q147 118 137 117.72 L118.77 117.22 Q111 117 103.44 118.8 L97.56 120.2 Q90 122 88.72 129.67 L85.65 148.09 Q85 152 81.04 152 L77.24 152 Q74 152 77.24 152 L79.76 152 Q83 152 83.28 148.77 L85.21 126.97 Q86 118 95 117.64 L102 117.36 Q111 117 110.76 108 L110.15 85.5 Q110 80 104.6 81.08 L100.4 81.92 Q95 83 91.86 78.48 L84.58 68.03 Q79 60 77.92 50.28 L76.39 36.52 Q76 33 79.24 31.56 L81.76 30.44 Q85 29 85.54 32.5 L87.66 46.31 Q89 55 94.04 62.2 L101.22 72.46 Q103 75 105.52 76.8 L107.48 78.2 Q110 80 113.1 80 L117.68 80 Q122 80 124.7 76.63 L136.24 62.21 Q142 55 145.24 46.36 L149.76 34.32 Q151 31 147.76 29.56 L145.24 28.44 Q142 27 141.04 30.41 L137.23 44.02 Q135 52 130.32 58.84 L125.05 66.54 Q122 71 117.68 74.24 L114.32 76.76 Q110 80 104.7 81.06 L100.4 81.92 Q95 83 91.86 78.48 L84.58 68.03 Q79 60 77.92 50.28 L76.69 39.25 Q76 33 70.24 35.52 L65.76 37.48 Q60 40 64.88 36.04 L70.24 31.68 Q76 27 83.42 27 L135.38 27 Q142 27 148.12 29.52 L153.63 31.79 Q159 34 164.04 36.88 L168.11 39.2 Q173 42 167.96 39.48 L164.04 37.52 Q159 35 153.42 34.22 L120.65 29.65 Q116 29 116.36 24.32 L117 16 C110 12 111 5 118 5 C126 6 125 15 117 16 L188 16 Q198 16 198 26 L198 149.48 Q198 152 195.48 152 L193.52 152 Q191 152 191 149.48 L191 26 Q191 16 181 16 L122.74 16 Q118 16 117.28 20.68 L116.72 24.32 Q116 29 115.45 33.7 L111.17 70.07 Q110 80 110.27 90 L110.75 107.9 Q111 117 102.36 119.88 L95.64 122.12 Q87 125 96.11 125 L129.84 125 Q132 125 132 127.16 L132 128.84 Q132 131 129.84 131 L118.56 131 Q111 131 111 138.56 L111 154","seated_row":"M99 68 C89 70 84 61 89 54 C94 47 105 49 108 57 C111 64 104 69 99 68 L100.28 76.96 Q101 82 100.41 87.06 L98.17 106.07 Q97 116 106.96 116.85 L122.04 118.15 Q132 119 139.78 112.72 L155.36 100.13 Q158 98 160.88 99.8 L163.12 101.2 Q166 103 163.93 105.7 L146.95 127.85 Q143 133 136.88 130.84 L132.12 129.16 Q126 127 119.93 124.7 L104.38 118.8 Q97 116 104.2 119.24 L109.8 121.76 Q117 125 123.46 129.54 L137.79 139.63 Q144 144 151.56 144.72 L159.98 145.52 Q165 146 159.96 146 L156.04 146 Q151 146 146.81 143.2 L143.32 140.88 Q139 138 134.27 135.85 L124.64 131.47 Q117 128 109.8 123.68 L104.2 120.32 Q97 116 97.98 107.66 L100.23 88.57 Q101 82 107.12 84.52 L111.88 86.48 Q118 89 124.58 89.68 L143.96 91.69 Q147 92 149.16 94.16 L151.16 96.16 Q153 98 151.56 100.16 L150.26 102.11 Q149 104 148.28 101.84 L147.72 100.16 Q147 98 144.72 98.09 L128.61 98.74 Q122 99 115.88 96.48 L108.59 93.48 Q105 92 103.56 88.4 L102.44 85.6 Q101 82 104.59 83.48 L111.88 86.48 Q118 89 124.58 89.68 L143.96 91.69 Q147 92 149.16 94.16 L150.84 95.84 Q153 98 156.05 97.93 L199 97 C196 89 206 87 210 93 C214 100 204 106 199 97 L205.4 107.24 Q209 113 209 119.79 L209 146.32 Q209 151 204.32 151 L200.68 151 Q196 151 196 146.32 L196 116.69 Q196 112 200.68 112.36 L204.32 112.64 Q209 113 206.51 109.02 L202.6 102.76 Q199 97 192.21 97.15 L163 97.78 Q153 98 143.48 101.06 L104.16 113.7 Q97 116 89.8 118.16 L84.2 119.84 Q77 122 84.52 122 L111.2 122 Q113 122 113 123.8 L113 125.2 Q113 127 111.2 127 L91.64 127 Q83 127 83 135.64 L83 148.48 Q83 151 80.48 151 L78.52 151 Q76 151 76 148.48 L76 122","pullover":"M79 86 C67 88 62 79 67 72 C72 65 83 66 86 74 C89 81 84 87 79 86 L88.6 93.68 Q94 98 100.91 98.31 L129.01 99.56 Q139 100 143.06 109.14 L146.94 117.86 Q151 127 158.37 133.76 L171.28 145.59 Q175 149 169.96 149.36 L166.04 149.64 Q161 150 158.03 145.91 L150.76 135.92 Q145 128 142.12 118.64 L139.88 111.36 Q137 102 127.25 101.09 L101.66 98.71 Q94 98 92.56 90.44 L91.44 84.56 Q90 77 85.84 70.53 L76.82 56.49 Q72 49 63.36 46.84 L50.73 43.68 Q48 43 46.2 45.16 L44.8 46.84 Q43 49 45.74 49.61 L54.52 51.56 Q61 53 64.42 58.69 L75.07 76.45 Q79 83 84.4 88.4 L88.6 92.6 Q94 98 96.41 90.76 L98.48 84.56 Q101 77 96.71 70.28 L82.66 48.29 Q78 41 69.72 38.48 L58.18 34.97 Q55 34 52.84 36.52 L50.89 38.8 Q49 41 50.44 43.52 L51.56 45.48 Q53 48 55.75 47.08 L58.76 46.08 Q62 45 61 41.74 L58.87 34.84 Q58 32 55.12 31.28 L52.88 30.72 Q50 30 49.38 32.9 L47.54 41.46 Q47 44 49.16 45.44 L50.84 46.56 Q53 48 51.71 45.75 L50.44 43.52 Q49 41 51.9 41 L68 41 Q78 41 83.38 49.43 L96.71 70.28 Q101 77 98.48 84.56 L95.87 92.4 Q94 98 89.32 101.6 L85.68 104.4 Q81 108 86.9 108 L141 108 Q151 108 151 118 L151 148.48 Q151 151 148.48 151 L146.52 151 Q144 151 144 148.48 L144 118 Q144 108 134 108 L74 108 Q64 108 64 118 L64 148.84 Q64 151 61.84 151 L60.16 151 Q58 151 58 148.84 L58 116.28 Q58 108 66.28 108 L81 108","rear_fly":"M112 47 C102 48 98 39 102 32 C107 25 118 27 121 35 C123 42 118 49 112 47 L110.08 55.32 Q109 60 109.19 64.8 L110.6 100.01 Q111 110 120.49 113.16 L128.51 115.84 Q138 119 140.14 128.77 L143.92 146.06 Q145 151 150.04 151.36 L154.69 151.69 Q159 152 154.68 152 L151.32 152 Q147 152 146.64 147.69 L144.83 125.97 Q144 116 134.16 114.21 L120.54 111.73 Q111 110 102 113.6 L95 116.4 Q86 120 84.16 129.52 L80.96 146.04 Q80 151 74.96 151.36 L70.31 151.69 Q66 152 70.32 152 L73.68 152 Q78 152 78.59 147.72 L81.62 125.9 Q83 116 92.78 113.9 L101.22 112.1 Q111 110 110.6 100.01 L109.2 65.01 Q109 60 104.32 61.8 L100.68 63.2 Q96 65 91.91 67.9 L80.16 76.22 Q72 82 63.96 87.95 L46.94 100.56 Q45 102 42.84 100.92 L41.16 100.08 Q39 99 40.9 97.51 L59.14 83.18 Q67 77 74.74 70.67 L83.42 63.57 Q89 59 96.2 59.36 L103.42 59.72 Q109 60 114.4 61.44 L118.6 62.56 Q124 64 128.78 66.9 L143.45 75.81 Q152 81 160.45 86.35 L179.96 98.71 Q182 100 184.16 98.92 L185.84 98.08 Q188 97 186 95.65 L165.28 81.61 Q157 76 148.96 70.06 L141.24 64.35 Q134 59 125 59.36 L118 59.64 Q109 60 109.36 69 L110.87 106.78 Q111 110 109.56 112.88 L108.44 115.12 Q107 118 103.78 118 L96.12 118 Q90 118 96.12 118 L132.12 118 Q135 118 135 120.88 L135 123.12 Q135 126 132.12 126 L119.64 126 Q111 126 111 134.64 L111 148.48 Q111 151 108.48 151 L106.52 151 Q104 151 104 148.48 L104 131.04 Q104 126 98.96 126 L92.88 126 Q90 126 90 123.12 L90 120.88 Q90 118 90.9 115.26 L107.44 64.77 Q109 60 104.32 61.8 L100.68 63.2 Q96 65 91.91 67.9 L80.16 76.22 Q72 82 63.96 87.95 L46.94 100.56 Q45 102 42.84 100.92 L41.16 100.08 Q39 99 38.81 96.59 L37.31 77.06 Q37 73 39.88 70.12 L42.12 67.88 Q45 65 48.45 67.17 L63.54 76.67 Q72 82 80.6 76.89 L104.2 62.86 Q109 60 114.4 61.44 L118.6 62.56 Q124 64 128.78 66.9 L143.45 75.81 Q152 81 161.14 85.06 L179.75 93.33 Q188 97 188.72 88 L189.67 76.09 Q190 72 186.76 69.48 L184.24 67.52 Q181 65 177.41 66.98 L152 81","preacher":"M101 58 C91 59 86 51 90 44 C94 37 106 39 109 47 C112 54 107 60 101 58 L104.84 66.32 Q107 71 107.51 76.13 L110 101.05 Q111 111 120.55 113.96 L130.45 117.04 Q140 120 142.2 129.75 L145.81 145.72 Q147 151 152.4 151.36 L157.69 151.71 Q162 152 157.68 152 L154.32 152 Q150 152 149.51 147.71 L147.14 126.94 Q146 117 136.14 115.31 L120.2 112.58 Q111 111 102.72 115.32 L96.28 118.68 Q88 123 86.63 132.24 L84.69 145.36 Q84 150 79.32 150.36 L74.95 150.7 Q71 151 74.96 151 L78.04 151 Q82 151 82.24 147.05 L83.4 127.98 Q84 118 93.68 115.49 L101.32 113.51 Q111 111 110 101.05 L107.73 78.35 Q107 71 112.4 76.04 L117.06 80.38 Q122 85 124.88 91.12 L127.12 95.88 Q130 102 134.39 96.85 L151.32 76.98 Q153 75 150.84 73.56 L149.16 72.44 Q147 71 145.16 72.84 L128.55 89.45 Q126 92 123.12 89.84 L120.88 88.16 Q118 86 115.87 83.1 L110.96 76.4 Q107 71 111.9 75.57 L117.06 80.38 Q122 85 124.88 91.12 L127.12 95.88 Q130 102 136.57 103.59 L155.7 108.2 Q159 109 160.8 106.12 L162.2 103.88 Q164 101 160.7 100.19 L122.3 90.81 Q119 90 117.2 92.88 L115.8 95.12 Q114 98 117.3 98.81 L149.29 106.63 Q159 109 159 119 L159 148.48 Q159 151 156.48 151 L154.52 151 Q152 151 152 148.48 L152 117.31 Q152 109 144.08 106.48 L137.92 104.52 Q130 102 135.39 95.67 L151.43 76.84 Q153 75 155.16 73.92 L157.36 72.82 Q159 72 158.64 70.2 L158.36 68.8 Q158 67 156.18 67.2 L150.29 67.86 Q149 68 148.28 69.08 L147.72 69.92 Q147 71 148.08 71.72 L150.84 73.56 Q153 75 154.46 77.15 L195 137 C189 133 190 124 197 125 C205 126 205 136 195 137 L187.96 145.32 Q184 150 190.13 150 L209 150","squat":"M125 41 C115 42 111 33 115 26 C119 19 131 21 134 29 C136 36 131 43 125 41 L121.16 49.32 Q119 54 116.78 58.65 L103.3 86.97 Q99 96 106.23 102.9 L113.77 110.1 Q121 117 118.5 126.68 L115.09 139.91 Q113 148 121.28 149.08 L130.65 150.3 Q136 151 130.6 151 L126.4 151 Q121 151 122.15 145.72 L125.86 128.77 Q128 119 120.93 111.93 L113.07 104.07 Q106 97 108.89 87.43 L117.29 59.65 Q119 54 122.6 58.68 L125.4 62.32 Q129 67 133.91 63.72 L144.59 56.61 Q147 55 146.64 52.12 L146.36 49.88 Q146 47 143.1 47 L75.96 47 Q72 47 72 43.04 L72 38.88 Q72 36 69.12 36 L66.88 36 Q64 36 64 38.88 L64 58.12 Q64 61 66.88 61 L69.12 61 Q72 61 72 58.12 L72 52.04 Q72 47 77.04 47 L157.04 47 Q161 47 161 43.04 L161 38.88 Q161 36 163.88 36 L166.12 36 Q169 36 169 38.88 L169 58.12 Q169 61 166.12 61 L163.88 61 Q161 61 161 58.12 L161 52.04 Q161 47 156.62 49.5 L152.04 52.12 Q147 55 142.17 58.22 L133.91 63.72 Q129 67 125.4 62.32 L122.6 58.68 Q119 54 113.72 56.64 L108.7 59.15 Q103 62 98.68 57.32 L92.54 50.67 Q91 49 88.84 48.28 L87.16 47.72 Q85 47 87.16 47.72 L88.84 48.28 Q91 49 91.65 51.18 L95.55 64.17 Q97 69 102.04 69 L105.96 69 Q111 69 113.37 64.55 L116.12 59.4 Q119 54 116.37 59.53 L102.95 87.71 Q99 96 92.88 102.84 L88.12 108.16 Q82 115 83.74 124.01 L86.72 139.4 Q88 146 94.48 147.8 L101.14 149.65 Q106 151 100.96 151 L97.04 151 Q92 151 89.9 146.42 L80.16 125.09 Q76 116 83.55 109.44 L99 96","rdl":"M135 56 C125 58 120 50 124 43 C128 35 139 37 143 45 C146 51 141 58 135 56 L126.04 64.32 Q121 69 117.26 74.77 L101.85 98.53 Q97 106 99.16 114.64 L101.07 122.27 Q103 130 100.48 137.56 L97.71 145.87 Q96 151 90.6 151.36 L84.59 151.76 Q81 152 84.6 152 L87.4 152 Q91 152 91.8 148.49 L94.23 137.77 Q96 130 93.48 122.44 L89.97 111.92 Q89 109 91.88 107.92 L94.12 107.08 Q97 106 99.12 108.23 L110.1 119.76 Q117 127 122.04 135.64 L128.45 146.64 Q131 151 136.04 151.36 L140.33 151.67 Q145 152 140.32 152 L136.68 152 Q132 152 128.76 148.62 L115.24 134.51 Q109 128 104.68 120.08 L101.32 113.92 Q97 106 101.91 98.43 L117.42 74.51 Q121 69 122.08 75.48 L122.92 80.52 Q124 87 126.39 93.12 L141.04 130.56 Q142 133 139.48 133.72 L137.52 134.28 Q135 135 133.99 132.58 L120.25 99.75 Q117 92 118.44 83.72 L119.75 76.18 Q121 69 124.96 75.12 L128.04 79.88 Q132 86 134.73 92.76 L150.09 130.76 Q151 133 148.84 134.08 L146.37 135.32 Q145 136 143.92 134.92 L143.08 134.08 Q142 133 140.47 133.05 L85.96 134.87 Q82 135 82 131.04 L82 126.88 Q82 124 79.12 124 L76.88 124 Q74 124 74 126.88 L74 144.12 Q74 147 76.88 147 L79.12 147 Q82 147 82 144.12 L82 139.32 Q82 135 86.32 135 L175.04 135 Q179 135 179 131.04 L179 126.88 Q179 124 181.88 124 L184.12 124 Q187 124 187 126.88 L187 144.12 Q187 147 184.12 147 L181.88 147 Q179 147 179 144.12 L179 139.32 Q179 135 174.69 134.69 L151 133","leg_press":"M87 82 C77 84 72 76 76 69 C81 61 92 64 95 72 C98 79 92 84 87 82 L91.48 90.96 Q94 96 97.59 100.34 L106.63 111.29 Q113 119 122.54 116.02 L135.46 111.98 Q145 109 150.67 100.76 L175.54 64.57 Q178 61 182.32 60.64 L185.68 60.36 Q190 60 187.69 63.67 L158.56 109.78 Q154 117 146.44 120.96 L139.99 124.34 Q133 128 125.8 124.76 L120.2 122.24 Q113 119 120.62 121.08 L136.35 125.37 Q146 128 153 120.86 L191.75 81.3 Q194 79 196.88 77.56 L199.12 76.44 Q202 75 200.29 72.27 L198.8 69.88 Q197 67 196.18 70.29 L195.08 74.68 Q194 79 190.88 82.18 L153 120.86 Q146 128 136.35 125.37 L122.65 121.63 Q113 119 106.63 111.29 L96.98 99.61 Q94 96 98.68 96 L102.32 96 Q107 96 109.92 99.65 L116.87 108.33 Q119 111 122.24 109.92 L124.76 109.08 Q128 108 125.95 105.27 L124.16 102.88 Q122 100 119.56 97.35 L114.32 91.68 Q110 87 104.45 90.12 L98.9 93.24 Q94 96 89.68 99.6 L86.32 102.4 Q82 106 85.98 109.98 L105.05 129.05 Q109 133 114.4 131.56 L118.6 130.44 Q124 129 120.27 124.84 L94.08 95.56 Q90 91 87.12 96.4 L84.88 100.6 Q82 106 86.33 110.33 L101.93 125.93 Q109 133 100.16 137.68 L79.14 148.81 Q75 151 70.32 151 L66.68 151 Q62 151 65.58 147.99 L80.88 135.14 Q87 130 94.92 131.08 L102.94 132.17 Q109 133 115.12 133 L119.88 133 Q126 133 129.49 127.97 L193.21 36.02 Q196 32 199.96 34.88 L203.04 37.12 Q207 40 204.53 44.23 L202.52 47.68 Q200 52 195.8 49.28 L187.78 44.09 Q183 41 187.68 37.76 L191.32 35.24 Q196 32 193 36.84 L180.29 57.32 Q178 61 182.32 60.64 L185.68 60.36 Q190 60 192.71 63.39 L198.31 70.39 Q202 75 206.68 78.6 L212.37 82.98 Q215 85 212.84 87.52 L211.16 89.48 Q209 92 206.5 89.82 L189.44 74.99 Q186 72 187.44 67.68 L188.56 64.32 Q190 60 187.57 63.85 L159.34 108.55 Q154 117 145.32 121.96 L133.32 128.82 Q126 133 120.6 139.48 L116.4 144.52 Q111 151 119.44 151 L206 151","split_squat":"M110 40 C100 41 96 33 100 26 C104 19 116 21 119 29 C122 36 116 42 110 40 L107.44 48.32 Q106 53 105.89 57.9 L105.22 89 Q105 99 97.14 105.18 L84.86 114.82 Q77 121 81.35 130.01 L88.96 145.77 Q91 150 95.68 150.36 L100.41 150.72 Q104 151 100.4 151 L97.6 151 Q94 151 91.69 148.24 L74.43 127.66 Q68 120 76.06 114.09 L95.95 99.51 Q98 98 100.52 98.36 L102.48 98.64 Q105 99 106.89 100.71 L128.58 120.3 Q136 127 145.28 123.29 L173.12 112.15 Q176 111 177.8 108.48 L179.2 106.52 Q181 104 177.95 104.51 L173.32 105.28 Q169 106 164.83 107.34 L147.22 113.03 Q138 116 130.8 109.52 L125.2 104.48 Q118 98 115.5 88.64 L107.39 58.22 Q106 53 101.68 56.24 L98.32 58.76 Q94 62 93.55 67.38 L91.21 95.46 Q91 98 88.48 98.36 L86.52 98.64 Q84 99 83.45 96.52 L82.64 92.9 Q82 90 79.12 90.72 L76.88 91.28 Q74 92 74.49 94.93 L76.52 107.14 Q77 110 79.88 109.64 L82.12 109.36 Q85 109 84.71 106.11 L84.25 101.53 Q84 99 86.52 98.64 L88.48 98.36 Q91 98 91.21 95.46 L93.55 67.38 Q94 62 98.32 58.76 L101.68 56.24 Q106 53 110.45 56.06 L116.24 60.04 Q122 64 123.44 70.84 L129.48 99.53 Q130 102 132.52 102 L134.48 102 Q137 102 137 99.48 L137 96.88 Q137 94 139.88 94 L142.12 94 Q145 94 145 96.88 L145 109.12 Q145 112 142.12 112 L139.88 112 Q137 112 137 109.12 L137 104.52 Q137 102 134.48 102 L132.52 102 Q130 102 129.48 99.53 L123.44 70.84 Q122 64 116.24 60.04 L111.76 56.96 Q106 53 105.85 59.99 L105.22 89 Q105 99 112.42 105.7 L128.58 120.3 Q136 127 145.28 123.29 L170.98 113.01 Q176 111 170.6 111.36 L166.4 111.64 Q161 112 166.41 112 L192 112 Q202 112 202 122 L202 148.48 Q202 151 199.48 151 L197.52 151 Q195 151 195 148.48 L195 121.72 Q195 112 185.28 112 L177.72 112 Q168 112 168 121.72 L168 148.48 Q168 151 165.48 151 L163.52 151 Q161 151 161 148.48 L161 112","lying_curl":"M66 89 C55 92 49 83 54 76 C59 69 70 71 73 79 C76 86 71 91 66 89 L77.52 97.32 Q84 102 91.99 102.32 L124.01 103.6 Q134 104 143.72 106.35 L155.45 109.18 Q163 111 161.2 103.44 L159.68 97.05 Q158 90 154.76 83.52 L150.48 74.97 Q149 72 151.16 69.48 L152.84 67.52 Q155 65 156.13 68.12 L160.12 79.08 Q163 87 165.27 95.12 L168.27 105.83 Q170 112 164.96 115.96 L161.04 119.04 Q156 123 150.82 119.23 L141.92 112.76 Q134 107 124.26 106.03 L87.74 102.37 Q84 102 82.92 105.6 L82.08 108.4 Q81 112 77.99 114.26 L64.22 124.59 Q61 127 57.4 125.2 L54.6 123.8 Q51 122 54.76 120.57 L67.61 115.67 Q72 114 74.52 110.04 L78.01 104.55 Q79 103 80.8 102.64 L82.2 102.36 Q84 102 85.83 102.07 L124.01 103.6 Q134 104 143.72 106.35 L155.45 109.18 Q163 111 161.2 103.44 L158 90 C147 95 140 85 146 78 C152 70 164 78 158 90 L167.41 107.26 Q170 112 173.24 116.32 L175.76 119.68 Q179 124 179 129.4 L179 142.12 Q179 146 175.4 147.44 L172.6 148.56 Q169 150 172.6 148.56 L175.4 147.44 Q179 146 182.83 146.6 L191.16 147.92 Q198 149 191.16 147.92 L185.84 147.08 Q179 146 179 139.08 L179 131.92 Q179 124 171.11 123.36 L77.97 115.81 Q68 115 78 115 L183 115 Q193 115 193 125 L193 148.12 Q193 151 190.12 151 L187.88 151 Q185 151 185 148.12 L185 125 Q185 115 175 115 L78 115 Q68 115 68 125 L68 148.12 Q68 151 65.12 151 L62.88 151 Q60 151 60 148.12 L60 122.64 Q60 115 67.56 113.92 L81 112","calf":"M111 45 C101 46 97 37 101 30 C105 22 117 24 120 32 C122 39 117 47 111 45 L109.08 53.32 Q108 58 108.19 62.8 L109.61 99.01 Q110 109 107.49 118.68 L104.09 131.79 Q103 136 104.8 139.96 L106.33 143.34 Q108 147 111.6 148.8 L114.4 150.2 Q118 152 113.98 152 L109.68 152 Q105 152 102.68 147.94 L99.88 143.04 Q97 138 97.99 132.28 L101.51 111.84 Q102 109 104.88 109 L107.12 109 Q110 109 111.6 111.4 L125.23 131.84 Q128 136 130.52 140.32 L133.05 144.65 Q135 148 138.6 149.44 L141.4 150.56 Q145 152 141.12 152 L136.68 152 Q132 152 129.11 148.32 L124.96 143.04 Q121 138 118.73 132.01 L113.55 118.35 Q110 109 109.61 99.01 L108.26 64.69 Q108 58 102.6 61.96 L98.4 65.04 Q93 69 91.73 75.57 L87.52 97.31 Q87 100 88.08 102.52 L88.92 104.48 Q90 107 92.38 105.64 L94.56 104.39 Q97 103 95.2 100.84 L93.8 99.16 Q92 97 92.1 94.19 L92.76 75.69 Q93 69 98.4 65.04 L102.81 61.81 Q108 58 113.76 60.88 L118.24 63.12 Q124 66 126.22 72.05 L134.11 93.56 Q135 96 136.44 98.16 L137.56 99.84 Q139 102 136.89 103.51 L134.52 105.2 Q132 107 130.85 104.12 L129.44 100.6 Q128 97 127.5 93.15 L124.82 72.39 Q124 66 118.24 63.12 L110.34 59.17 Q108 58 107.28 55.48 L106.72 53.52 Q106 51 103.38 51 L80.88 51 Q78 51 78 48.12 L78 45.88 Q78 43 80.88 43 L135.12 43 Q138 43 138 45.88 L138 48.12 Q138 51 135.12 51 L129.04 51 Q124 51 124 56.04 L124 60.6 Q124 66 125.86 71.07 L134.11 93.56 Q135 96 136.44 98.16 L137.56 99.84 Q139 102 139.51 104.55 L148.65 150.23 Q149 152 149 153.8 L149 155.2 Q149 157 147.2 157 L92.8 157 Q91 157 91 155.2 L91 153.8 Q91 152 92.8 152 L149 152","hip_thrust":"M75 95 C65 98 59 90 63 82 C68 75 79 77 82 85 C85 92 80 96 75 95 L84.6 103.32 Q90 108 97.03 106.69 L123.17 101.83 Q133 100 142.79 102.03 L152.21 103.97 Q162 106 160.36 115.86 L158.43 127.4 Q157 136 163.84 141.4 L172.33 148.1 Q176 151 171.32 151 L167.68 151 Q163 151 159.58 147.81 L153.4 142.04 Q148 137 148.88 129.67 L150.14 119.19 Q151 112 144.52 108.76 L139.48 106.24 Q133 103 125.8 103.84 L93.03 107.65 Q90 108 87.84 110.16 L86.16 111.84 Q84 114 80.95 114 L62.16 114 Q60 114 60 111.84 L60 110.16 Q60 108 62.16 108 L95.84 108 Q98 108 98 110.16 L98 111.84 Q98 114 95.84 114 L89.04 114 Q84 114 84 119.04 L84 147.12 Q84 150 81.12 150 L78.88 150 Q76 150 76 147.12 L76 119.48 Q76 114 81.04 111.84 L84.96 110.16 Q90 108 94.85 110.57 L100.88 113.76 Q107 117 113.3 114.13 L127.96 107.47 Q129 107 128.64 105.92 L128.36 105.08 Q128 104 126.86 104.06 L111.6 104.82 Q108 105 108 101.4 L108 97.88 Q108 95 105.12 95 L102.88 95 Q100 95 100 97.88 L100 116.12 Q100 119 102.88 119 L105.12 119 Q108 119 108 116.12 L108 110.04 Q108 105 113.04 105 L164.4 105 Q168 105 168 101.4 L168 97.88 Q168 95 170.88 95 L173.12 95 Q176 95 176 97.88 L176 116.12 Q176 119 173.12 119 L170.88 119 Q168 119 168 116.12 L168 110.04 Q168 105 162.97 105.26 L137.69 106.55 Q129 107 121.08 110.6 L113.3 114.13 Q107 117 100.88 113.76 L96.12 111.24 Q90 108 96.81 106.73 L123.17 101.83 Q133 100 142.95 101 L153.05 102 Q163 103 166.76 112.26 L172.93 127.45 Q176 135 181.76 140.76 L188.44 147.44 Q192 151 186.96 151 L183.04 151 Q178 151 175.27 146.76 L172.24 142.04 Q169 137 167.68 131.16 L162 106","knee_extension":"M100 60 C90 60 86 52 90 45 C94 38 105 40 109 48 C112 55 106 62 100 60 L102.56 68.32 Q104 73 104.51 77.87 L106.95 101.05 Q108 111 117.99 111.5 L138.01 112.5 Q148 113 156.4 107.58 L172.92 96.92 Q179 93 186.2 93.72 L194.82 94.58 Q199 95 195.4 97.16 L192.6 98.84 Q189 101 184.82 101.35 L181.32 101.64 Q177 102 173.64 104.74 L157.75 117.68 Q150 124 140.27 121.68 L117.73 116.32 Q108 114 107.03 104.05 L104.62 79.38 Q104 73 109.04 76.96 L112.96 80.04 Q118 84 119.62 90.2 L123.43 104.8 Q124 107 126.16 107.72 L127.84 108.28 Q130 109 130.72 106.84 L131.28 105.16 Q132 103 131.61 100.76 L129.44 88.28 Q128 80 119.93 77.65 L108.4 74.28 Q104 73 100.76 76.24 L98.24 78.76 Q95 82 94.3 86.53 L91.39 105.48 Q91 108 89.2 109.8 L87.8 111.2 Q86 113 87.96 114.63 L89.84 116.2 Q92 118 92.66 115.27 L97.58 94.87 Q99 89 100.8 83.24 L102.2 78.76 Q104 73 104.63 79 L107.22 103.63 Q108 111 101.52 114.6 L96.48 117.4 Q90 121 97.41 121 L150.76 121 Q154 121 154 124.24 L154 126.76 Q154 130 150.76 130 L135.92 130 Q128 130 128 137.92 L128 149.12 Q128 152 125.12 152 L122.88 152 Q120 152 120 149.12 L120 137.92 Q120 130 112.08 130 L93.24 130 Q90 130 90 126.76 L90 124.24 Q90 121 93.21 120.56 L138.09 114.37 Q148 113 156.4 107.58 L179 93 C178 85 190 82 195 89 C200 97 189 104 179 93 L155.07 118.58 Q150 124 151.8 131.2 L153.2 136.8 Q155 144 161.91 146.7 L170.96 150.25 Q178 153 185.56 153 L199 153","seated_curl":"M101 62 C91 63 87 54 91 47 C96 40 107 42 110 50 C113 57 108 64 101 62 L103.56 70.32 Q105 75 105.44 79.88 L107.09 98.04 Q108 108 117.98 108.7 L141.02 110.3 Q151 111 146.53 119.94 L139.17 134.67 Q137 139 133.76 142.6 L130.66 146.04 Q128 149 124.04 148.64 L120.81 148.35 Q117 148 119.88 145.48 L122.12 143.52 Q125 141 126.51 137.48 L133.06 122.19 Q137 113 127.02 112.31 L117.98 111.69 Q108 111 107.17 101.03 L105.44 80.33 Q105 75 108.96 78.6 L112.04 81.4 Q116 85 117.83 90.03 L122.57 103.05 Q124 107 127.6 109.16 L132.02 111.81 Q134 113 132.56 114.8 L131.44 116.2 Q130 118 127.9 117.05 L122.96 114.8 Q119 113 117.57 108.89 L112.91 95.49 Q111 90 108.84 84.6 L106.61 79.02 Q105 75 102.12 78.24 L99.88 80.76 Q97 84 96.44 88.3 L94.43 103.71 Q94 107 91.48 109.16 L89.13 111.17 Q87 113 89.16 114.8 L90.84 116.2 Q93 118 93.95 115.35 L101.17 95.13 Q103 90 103.72 84.6 L104.28 80.4 Q105 75 105.49 80.43 L107.26 99.82 Q108 108 100.8 111.96 L95.2 115.04 Q88 119 96.22 119 L151.12 119 Q154 119 154 121.88 L154 124.12 Q154 127 151.12 127 L128.72 127 Q119 127 119 136.72 L119 151.48 Q119 154 116.48 154 L114.52 154 Q112 154 112 151.48 L112 135.64 Q112 127 103.36 127 L90.88 127 Q88 127 88 124.12 L88 121.88 Q88 119 90.86 118.64 L141.08 112.26 Q151 111 146.53 119.94 L137 139 C131 132 122 135 123 143 C125 153 139 149 137 139 L153.33 143.57 Q162 146 171 146 L184.48 146 Q187 146 187 148.52 L187 150.48 Q187 153 184.48 153 L171.64 153 Q163 153 160.17 144.84 L154 127","stepup":"M111 42 C101 43 97 35 101 28 C105 20 117 22 120 30 C123 37 117 44 111 42 L108.44 50.32 Q107 55 106.79 59.89 L105.43 91.01 Q105 101 114.89 102.5 L128.11 104.5 Q138 106 143.19 97.45 L151.24 84.19 Q155 78 162.2 78.72 L171.7 79.67 Q175 80 172.84 82.52 L171.16 84.48 Q169 87 165.68 87 L162.6 87 Q159 87 157.51 90.28 L148.14 110.9 Q144 120 134.86 115.94 L121.57 110.03 Q117 108 112.68 105.48 L109.32 103.52 Q105 101 101.85 104.89 L94.12 114.44 Q88 122 88.34 131.72 L88.83 145.95 Q89 151 83.96 151.36 L78.95 151.72 Q75 152 78.96 152 L82.04 152 Q86 152 85.13 148.14 L81.2 130.75 Q79 121 85.54 113.43 L91.46 106.57 Q98 99 100 89.2 L105.78 60.99 Q107 55 102.68 59.32 L99.32 62.68 Q95 67 94.11 73.04 L90.37 98.48 Q90 101 87.48 101.36 L85.52 101.64 Q83 102 82.68 99.47 L82.31 96.5 Q82 94 79.48 94 L77.52 94 Q75 94 75 96.52 L75 109.48 Q75 112 77.52 112 L79.48 112 Q82 112 82.25 109.49 L82.75 104.53 Q83 102 85.52 101.64 L87.48 101.36 Q90 101 90.37 98.48 L94.11 73.04 Q95 67 99.32 62.68 L102.68 59.32 Q107 55 112.08 58.39 L116.6 61.4 Q122 65 123.62 71.29 L130.45 97.88 Q131 100 133.16 100.36 L134.84 100.64 Q137 101 137 98.81 L137 95.52 Q137 93 139.52 93 L141.48 93 Q144 93 144 95.52 L144 108.48 Q144 111 141.48 111 L139.52 111 Q137 111 137 108.48 L137 103.19 Q137 101 134.84 100.64 L133.16 100.36 Q131 100 130.45 97.88 L123.62 71.29 Q122 65 116.6 61.4 L112.4 58.6 Q107 55 106.72 61.48 L105.43 91.01 Q105 101 114.89 102.5 L128.11 104.5 Q138 106 143.19 97.45 L151.24 84.19 Q155 78 162.2 78.72 L170.02 79.5 Q175 80 170.68 82.52 L167.32 84.48 Q163 87 168 87 L192 87 Q202 87 202 97 L202 148.48 Q202 151 199.48 151 L197.52 151 Q195 151 195 148.48 L195 97 Q195 87 185 87 L173 87 Q163 87 163 97 L163 148.48 Q163 151 160.48 151 L158.52 151 Q156 151 156 148.48 L156 87","calf_single":"M109 45 C99 46 95 38 99 31 C103 23 115 25 118 33 C121 40 115 47 109 45 L107.08 53.32 Q106 58 106.28 62.8 L108.42 100.02 Q109 110 105.53 119.38 L100.51 132.92 Q99 137 100.8 140.96 L102.2 144.04 Q104 148 108.1 149.46 L113.25 151.3 Q118 153 112.96 153 L109.04 153 Q104 153 101.2 148.81 L97.6 143.4 Q94 138 95.63 131.72 L100.27 113.81 Q101 111 103.88 110.64 L106.12 110.36 Q109 110 111.75 110.92 L125.36 115.45 Q133 118 129.4 125.2 L124.62 134.76 Q123 138 119.4 138.36 L116.6 138.64 Q113 139 116.18 137.27 L120.19 135.08 Q124 133 124.36 128.68 L124.64 125.32 Q125 121 121.43 118.54 L114.76 113.96 Q109 110 108.6 103.02 L106.34 63.85 Q106 58 101.68 61.96 L98.32 65.04 Q94 69 93.15 74.8 L89.4 100.29 Q89 103 86.48 104.08 L84.52 104.92 Q82 106 80.92 103.48 L80.03 101.41 Q79 99 76.48 99.72 L74.52 100.28 Q72 101 72.68 103.53 L75.24 113.13 Q76 116 78.88 115.28 L81.12 114.72 Q84 114 83.28 111.12 L82.66 108.66 Q82 106 84.52 104.92 L86.48 104.08 Q89 103 89.4 100.29 L93.15 74.8 Q94 69 98.32 65.04 L101.68 61.96 Q106 58 111.24 60.62 L116.24 63.12 Q122 66 125.28 71.54 L130.5 80.38 Q135 88 142.92 84.04 L154.96 78.02 Q157 77 157.72 74.84 L158.28 73.16 Q159 71 161.16 71.72 L162.84 72.28 Q165 73 164.59 75.24 L163.52 81.14 Q163 84 160.12 83.64 L157.88 83.36 Q155 83 152.18 83.7 L142.2 86.2 Q135 88 131.22 81.61 L125.28 71.54 Q122 66 116.24 63.12 L111.76 60.88 Q106 58 106.37 64.43 L108.42 100.02 Q109 110 105.53 119.38 L100.51 132.92 Q99 137 100.8 140.96 L102.2 144.04 Q104 148 108.1 149.46 L112.96 151.2 Q118 153 112.65 153 L93.16 153 Q91 153 91 155.16 L91 156.84 Q91 159 93.16 159 L130.84 159 Q133 159 133 156.84 L133 155.16 Q133 153 130.84 153 L123.35 153 Q118 153 112.96 151.2 L104 148","bike":"M119 41 C109 43 104 35 108 28 C112 20 124 22 127 30 C130 37 125 43 119 41 L111.96 50.6 Q108 56 105.01 61.99 L89.47 93.06 Q85 102 94.81 103.96 L110.19 107.04 Q120 109 122.5 118.68 L127.07 136.41 Q128 140 124.76 141.8 L122.1 143.28 Q119 145 117.56 141.76 L116.44 139.24 Q115 136 114.18 132.55 L111.8 122.56 Q110 115 103.11 111.41 L87.58 103.34 Q85 102 83.56 104.52 L82.44 106.48 Q81 109 78.1 108.83 L65.44 108.08 Q64 108 64 106.56 L64 105.44 Q64 104 65.44 104 L94.56 104 Q96 104 96 105.44 L96 106.56 Q96 108 94.56 108.1 L86.4 108.64 Q81 109 81.95 114.33 L84.24 127.16 Q86 137 95.97 137.71 L118.03 139.29 Q128 140 134.78 132.65 L160.19 105.13 Q164 101 159.68 97.4 L156.32 94.6 Q152 91 146.82 88.82 L139.26 85.64 Q133 83 129.4 77.24 L126.55 72.68 Q123 67 117.6 63.04 L111.5 58.56 Q108 56 110.88 59.24 L113.12 61.76 Q116 65 118.51 68.54 L128.32 82.4 Q133 89 140.56 91.88 L151.74 96.14 Q154 97 156.16 95.92 L157.84 95.08 Q160 94 157.74 93.15 L154.88 92.08 Q152 91 154.98 90.25 L160.02 89 Q164 88 166.52 91.24 L169.22 94.71 Q171 97 168.48 98.44 L166.52 99.56 Q164 101 164.96 103.74 L179 144 C179 132 189 123 200 129 C214 136 209 156 195 157 C181 157 174 143 179 134 C183 126 195 123 204 131 C212 140 206 156 195 157 L137.69 142.46 Q128 140 118.03 139.29 L86 137 C86 124 68 123 58 131 C44 141 54 159 68 158 C84 157 88 139 78 130 C68 121 51 129 53 144 C55 157 76 163 83 149 L84.92 141.32 Q86 137 88.84 133.57 L98.63 121.71 Q105 114 114.77 111.85 L154.23 103.15 Q164 101 167.29 110.44 L179 144","running":"M129 43 C119 44 115 36 119 29 C123 21 135 23 138 31 C141 38 135 45 129 43 L123.88 51.96 Q121 57 118.55 62.26 L105.22 90.93 Q101 100 110.05 104.26 L125.95 111.74 Q135 116 141.69 123.43 L156.85 140.28 Q162 146 169.56 147.44 L178.88 149.21 Q183 150 179.4 152.16 L176.6 153.84 Q173 156 169.02 154.67 L161.48 152.16 Q155 150 149.99 145.36 L135.34 131.79 Q128 125 120.66 118.21 L108.34 106.79 Q101 100 93.93 107.07 L85.76 115.24 Q79 122 70 118.76 L60.39 115.3 Q54 113 48.24 109.4 L40.63 104.64 Q38 103 39.8 100.48 L41.2 98.52 Q43 96 45.74 97.45 L53.88 101.76 Q60 105 66.79 106.36 L73.51 107.7 Q80 109 84.68 104.32 L88.32 100.68 Q93 96 96.86 90.62 L117.85 61.39 Q121 57 116.68 60.24 L113.32 62.76 Q109 66 104.51 69 L93.32 76.45 Q85 82 78.27 74.6 L68.42 63.77 Q65 60 68.6 56.4 L73.37 51.63 Q75 50 76.44 51.8 L77.56 53.2 Q79 55 77.23 56.48 L75.16 58.2 Q73 60 75.2 61.76 L82.6 67.68 Q88 72 94.65 70.1 L103.81 67.48 Q109 66 113.32 62.76 L116.91 60.07 Q121 57 124.24 60.96 L126.76 64.04 Q130 68 132.6 72.4 L138.66 82.65 Q143 90 150.56 86.04 L161.77 80.17 Q164 79 166.52 79 L168.72 79 Q171 79 171.72 81.16 L172.28 82.84 Q173 85 170.96 86.02 L167.88 87.56 Q165 89 162.1 90.39 L150.28 96.04 Q142 100 136.03 93.03 L129.2 85.07 Q124 79 122.92 71.08 L122.08 64.92 Q121 57 117.63 64.25 L105.22 90.93 Q101 100 110.05 104.26 L125.95 111.74 Q135 116 141.69 123.43 L156.85 140.28 Q162 146 169.56 147.44 L183 150","boxing":"M110 46 C99 46 96 37 100 30 C105 22 117 25 120 33 C123 41 116 48 110 46 L108.08 54.96 Q107 60 107.11 65.15 L107.8 99 Q108 109 103.98 118.16 L92.19 145.01 Q90 150 84.6 150.72 L79.64 151.38 Q75 152 79.68 152 L83.32 152 Q88 152 89.06 147.44 L97.18 112.51 Q98 109 101.6 109 L104.4 109 Q108 109 110 112 L127.64 138.46 Q132 145 139.56 147.16 L148.1 149.6 Q153 151 147.96 151.72 L144.04 152.28 Q139 153 136.72 148.45 L124.77 124.54 Q122 119 116.96 115.4 L113.04 112.6 Q108 109 107.87 102.81 L107.11 65.49 Q107 60 102.32 62.88 L98.68 65.12 Q94 68 91.2 72.73 L85.27 82.77 Q81 90 76.68 82.8 L69 70 C60 73 52 65 56 58 C60 51 69 54 72 61 C75 69 68 73 69 70 L76.68 82.8 Q81 90 85.27 82.77 L91.2 72.73 Q94 68 98.68 65.12 L102.32 62.88 Q107 60 111.68 62.88 L115.32 65.12 Q120 68 124.99 65.7 L136.92 60.19 Q146 56 155.84 57.76 L174 61 C173 51 188 48 193 57 C198 66 187 75 179 69 C170 64 174 56 181 54 C190 50 197 62 191 68 C184 76 174 69 174 61 L154.39 63.1 Q146 64 139.52 69.4 L131.76 75.87 Q128 79 125.12 75.04 L122.88 71.96 Q120 68 115.83 65.43 L107 60","abwheel":"M141 78 C130 81 123 72 127 64 C132 56 144 58 148 66 C152 73 147 80 141 78 L130.12 84.4 Q124 88 117.48 90.82 L96.18 100.03 Q87 104 82.53 112.94 L78.04 121.92 Q74 130 65 130.72 L52.04 131.76 Q49 132 46.84 129.84 L45.16 128.16 Q43 126 45.98 125.34 L62.14 121.75 Q70 120 73.6 112.8 L78.7 102.6 Q80 100 82.52 101.44 L84.48 102.56 Q87 104 89.66 102.85 L116.45 91.26 Q124 88 131.56 91.24 L137.44 93.76 Q145 97 149.68 103.76 L160.34 119.15 Q163 123 167.68 123 L172.68 123 Q176 123 173.48 125.16 L171.52 126.84 Q169 129 165.85 127.95 L161.32 126.44 Q157 125 153.78 121.78 L143.8 111.8 Q138 106 132.96 99.52 L126.88 91.71 Q124 88 126.52 91.96 L128.48 95.04 Q131 99 133.1 103.2 L140.53 118.06 Q145 127 154.59 129.84 L172 135 C172 124 189 122 195 132 C202 143 188 153 180 145 C168 137 177 124 188 127 C198 130 196 145 186 148 C177 150 170 139 172 135 L154.59 129.84 Q145 127 140.53 118.06 L133.1 103.2 Q131 99 128.48 95.04 L126.52 91.96 Q124 88 119.69 89.86 L96.18 100.03 Q87 104 82.53 112.94 L78.04 121.92 Q74 130 65 130.72 L49 132","plank":"M177 70 C167 74 158 66 162 58 C166 50 179 51 184 59 C188 65 184 72 177 70 L163.56 78.32 Q156 83 147.58 85.87 L118.47 95.78 Q109 99 100.44 104.18 L79.46 116.88 Q71 122 61.28 123.8 L47 126.44 Q44 127 41.84 124.84 L40.16 123.16 Q38 121 40.98 120.32 L52.08 117.8 Q60 116 67.67 113.34 L99.55 102.28 Q109 99 118.47 95.78 L146.64 86.19 Q156 83 154.2 92.72 L152.8 100.28 Q151 110 157.63 117.33 L164.44 124.86 Q170 131 178.28 131 L190.45 131 Q193 131 194.8 132.8 L196.2 134.2 Q198 136 195.46 136.18 L178.98 137.31 Q169 138 161.27 131.65 L147.82 120.6 Q141 115 142.8 106.36 L145.06 95.51 Q146 91 149.6 88.12 L152.4 85.88 Q156 83 159.15 86.36 L165.6 93.24 Q171 99 173.1 106.61 L177.63 123.03 Q179 128 184.04 129.08 L187.96 129.92 Q193 131 187.96 129.92 L184.04 129.08 Q179 128 176.5 123.49 L167.44 107.2 Q164 101 161.12 94.52 L158.88 89.48 Q156 83 149.29 85.29 L118.47 95.78 Q109 99 101.22 105.28 L90.78 113.72 Q83 120 74.26 124.86 L59.48 133.07 Q56 135 52.04 134.64 L48.96 134.36 Q45 134 48.61 132.33 L61.92 126.19 Q71 122 79.56 116.82 L109 99","vup":"M86 99 C75 102 68 93 72 85 C77 77 89 80 93 87 C97 95 92 101 86 99 L93.68 107.32 Q98 112 102.42 116.59 L117.06 131.8 Q124 139 128.96 130.32 L139.04 112.68 Q144 104 149.65 95.75 L167.54 69.59 Q170 66 173.96 64.2 L178.5 62.13 Q181 61 182.08 63.52 L182.92 65.48 Q184 68 181.67 69.44 L175.68 73.12 Q171 76 168.73 81 L155.14 110.9 Q151 120 144.23 127.36 L129.76 143.09 Q128 145 126.56 142.84 L125.44 141.16 Q124 139 121.92 137.44 L102.66 122.99 Q100 121 99.28 117.76 L98.72 115.24 Q98 112 101.11 110.83 L113.36 106.24 Q122 103 128.96 96.94 L149.57 78.99 Q153 76 157.32 74.56 L163.01 72.66 Q165 72 166.08 73.8 L166.92 75.2 Q168 77 166.28 78.2 L161.6 81.48 Q158 84 155.04 87.25 L132.47 112.09 Q128 117 121.52 118.44 L115.27 119.83 Q110 121 105.68 117.76 L101.92 114.94 Q98 112 102.68 110.56 L106.32 109.44 Q111 108 115.13 105.37 L139.58 89.81 Q144 87 149.04 85.56 L156.14 83.53 Q158 83 158.72 84.8 L159.28 86.2 Q160 88 158.29 88.91 L150.4 93.12 Q145 96 140.33 99.95 L125 112.92 Q119 118 111.44 115.84 L105.56 114.16 Q98 112 103.45 117.66 L117.06 131.8 Q124 139 128.96 130.32 L139.04 112.68 Q144 104 149.65 95.75 L170 66","climber":"M177 67 C167 71 159 62 163 55 C168 47 181 50 185 58 C188 64 183 70 177 67 L162.28 75.32 Q154 80 144.85 82.61 L114.62 91.25 Q105 94 97.22 100.28 L81.78 112.72 Q74 119 64.67 122.59 L51.1 127.81 Q48 129 45.84 126.48 L44.16 124.52 Q42 122 45.09 120.79 L56.72 116.24 Q65 113 72.56 108.33 L97.06 93.2 Q99 92 101.16 92.72 L102.84 93.28 Q105 94 106.37 95.82 L123 118 Q129 126 121.45 132.56 L108.99 143.4 Q106 146 102.04 146 L98.96 146 Q95 146 97.87 143.28 L107.16 134.48 Q114 128 108 120.74 L98.41 109.13 Q95 105 98.6 101.04 L101.4 97.96 Q105 94 110.15 92.53 L144.38 82.75 Q154 80 152.3 89.85 L150.7 99.15 Q149 109 155.16 116.88 L161.9 125.48 Q167 132 175.28 132 L186.6 132 Q190 132 192.88 133.8 L195.12 135.2 Q198 137 194.61 137.23 L177.98 138.33 Q168 139 160.41 132.49 L147.51 121.43 Q140 115 141.8 105.28 L144.21 92.26 Q145 88 148.24 85.12 L150.76 82.88 Q154 80 156.2 83.74 L160.4 90.88 Q164 97 166.85 103.51 L176.22 124.92 Q178 129 182.32 130.08 L185.68 130.92 Q190 132 185.68 130.92 L182.32 130.08 Q178 129 175.47 125.34 L164.87 110.04 Q160 103 157.84 94.72 L156.16 88.28 Q154 80 145.77 82.35 L114.62 91.25 Q105 94 97.22 100.28 L81.78 112.72 Q74 119 64.67 122.59 L48 129"};
+  function exerciseSketchKey(ex){
+    const name=cleanName(ex.name).toLowerCase();
+    if(name.includes('tabata')){
+      if((ex.note||'').includes('V-ups'))return 'vup';
+      if((ex.note||'').includes('Mountain climbers'))return 'climber';
+      if((ex.note||'').includes('Plank hombros'))return 'plank';
+      return 'abwheel';
     }
-  }catch(e){console.warn('Sheets load failed, using localStorage',e);}
-}
-
-async function saveState(sessionToSave){
-  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}
-  if(!sessionToSave)return;
-  try{
-    const data=encodeURIComponent(JSON.stringify(sessionToSave));
-    await fetch(`${SCRIPT_URL}?type=gym&action=save&data=${data}`,{method:'GET'});
-    document.getElementById('syncDot').textContent='🟢';
-  }catch(e){
-    console.warn('Sheets save failed, data safe in localStorage',e);
-    document.getElementById('syncDot').textContent='⚠️';
+    const rules=[
+      [/press banca/,'bench'],[/press inclinado/,'incline'],[/press declinado/,'decline'],
+      [/press militar/,'overhead'],[/elevaciones laterales cable/,'lateral_cable'],
+      [/elevaciones laterales mancuerna/,'lateral_dumbbell'],[/fondos/,'dip'],
+      [/pushdown/,'pushdown'],[/cruces cable/,'cable_fly'],[/press arnold/,'arnold'],
+      [/extensión tríceps sobre cabeza/,'overhead_cable'],[/kickbacks/,'kickback'],
+      [/dominadas/,'pullup'],[/peso muerto convencional/,'deadlift'],[/remo pendlay/,'row_bar'],
+      [/remo unilateral/,'row_single'],[/face pulls/,'facepull'],[/curl barra/,'curl_bar'],
+      [/curl inclinado/,'curl_incline'],[/jalón al pecho/,'lat_pulldown'],[/remo polea baja/,'seated_row'],
+      [/pull-over/,'pullover'],[/elevaciones posteriores/,'rear_fly'],[/curl predicador/,'preacher'],
+      [/sentadilla back/,'squat'],[/romanian/,'rdl'],[/prensa de piernas/,'leg_press'],
+      [/sentadilla búlgara/,'split_squat'],[/curl femoral acostado/,'lying_curl'],
+      [/pantorrilla de pie/,'calf'],[/pantorrilla unilateral/,'calf_single'],[/hip thrust/,'hip_thrust'],
+      [/extensión cuádriceps/,'knee_extension'],[/curl femoral sentado/,'seated_curl'],
+      [/step-ups/,'stepup'],[/bici/,'bike'],[/boxeo/,'boxing'],[/running|zona 2/,'running']
+    ];
+    return rules.find(([test])=>test.test(name))?.[1]||null;
   }
-}
-
-// ── WORKOUT SELECTION ──
-function detectMode(){
-  const existing=state.sessions.find(s=>s.date===tday());
-  isMakeup=!!existing;
-}
-
-function autoSelectToday(){
-  const dow=new Date().getDay();
-  const dayMap=[null,'push','pull','legs','pull','push','legs'];
-  const variantMap=[null,'heavy','heavy','heavy','volume','volume','volume'];
-  const t=dayMap[dow],v=variantMap[dow];
-  if(t&&v){selectType(t,true);selectVariant(t+'_'+v,true);}
-}
-
-function selectType(type,silent=false){
-  selectedType=type;selectedVariant=null;
-  document.querySelectorAll('.type-btn').forEach(b=>b.className='type-btn');
-  const btn=document.getElementById('typeBtn-'+type);
-  if(btn)btn.className='type-btn selected-'+type;
-  const variants={
-    push:[{key:'push_heavy',label:'Fuerza',desc:'5×3–5 · Banca pesado · HIIT',badge:'heavy',pu:false},
-          {key:'push_volume',label:'Volumen',desc:'4×10–12 · Pump · Zona 2',badge:'volume',pu:false}],
-    pull:[{key:'pull_heavy',label:'Fuerza ⭐',desc:'Dominadas máx · Peso muerto · Boxeo',badge:'heavy',pu:true},
-          {key:'pull_volume',label:'Volumen',desc:'GTG dominadas · Jalón · Zona 2',badge:'volume',pu:true}],
-    legs:[{key:'legs_heavy',label:'Fuerza',desc:'Sentadilla 5×5 · RDL · Intervals',badge:'heavy',pu:false},
-          {key:'legs_volume',label:'Volumen',desc:'Hip thrust · Búlgara · Zona 2',badge:'volume',pu:false}],
-  };
-  const vs=variants[type];
-  document.getElementById('variantGrid').innerHTML=vs.map(v=>`
-    <div class="variant-btn" id="vbtn-${v.key}" onclick="selectVariant('${v.key}')">
-      <div class="vb-top">
-        <span class="vb-badge badge-${v.badge}">${v.badge==='heavy'?'🔥 Fuerza':'🔁 Volumen'}</span>
-        ${v.pu?`<span class="vb-pu">⭐ Pull-ups</span>`:''}
-      </div>
-      <div class="vb-name">${v.label}</div>
-      <div class="vb-desc">${v.desc}</div>
-    </div>`).join('');
-  document.getElementById('variantSection').style.display='block';
-  document.getElementById('workoutSection').style.display='none';
-  if(!silent)detectMode();
-}
-
-function selectVariant(key,silent=false){
-  selectedVariant=key;
-  document.querySelectorAll('.variant-btn').forEach(b=>b.classList.remove('selected'));
-  const vb=document.getElementById('vbtn-'+key);
-  if(vb)vb.classList.add('selected');
-  if(!silent)detectMode();
-  renderWorkout(key);
-}
-
-function renderWorkout(key){
-  const w=WORKOUTS[key];if(!w)return;
-  document.getElementById('workoutSection').style.display='block';
-  document.getElementById('missedBadge').style.display=isMakeup?'flex':'none';
-  const cls=w.type;
-  const bgText={push:'PUSH',pull:'PULL',legs:'LEGS'}[w.type]||'';
-  document.getElementById('todayHeader').innerHTML=`
-    <div class="today-header ${cls}">
-      <div class="th-bg-text">${bgText}</div>
-      <div class="th-label">${new Date().toLocaleDateString('es',{weekday:'long',day:'numeric',month:'long'}).toUpperCase()}</div>
-      <div class="th-title">${w.title}</div>
-      <div class="th-muscles">${w.muscles}</div>
-      ${w.duration?`<div class="th-duration">⏱ ${w.duration}</div>`:''}
-    </div>`;
-  const stripEl=document.getElementById('pullupStrip');
-  if(w.isPullDay){
-    const best=getBestPullups();
-    const cw=getCurrentWeek();
-    const target=WEEK_TARGETS[Math.min(cw-1,7)].pu;
-    const proto=w.isPullGTG?`Grease the Groove: haz ${Math.floor(best/2)} reps × 4 series`:`Máximo esfuerzo. Tu mejor: ${best}. Meta: ${target}`;
-    stripEl.style.display='flex';
-    stripEl.innerHTML=`<div class="ps-icon">⭐</div><div class="ps-body"><div class="ps-label">${w.isPullGTG?'GTG':'MAX ESFUERZO'}</div><div class="ps-text">${proto}</div></div><div class="ps-num">${target}</div>`;
-  }else{stripEl.style.display='none';}
-  document.getElementById('liftLabel').textContent=LIFT_LABELS[w.type]||'Levantamiento (lbs)';
-  document.getElementById('pullupFormField').style.display=w.isPullDay?'block':'none';
-  const tagMap={ss:'tag-ss',star:'tag-star',drop:'tag-drop',rp:'tag-rp',fst:'tag-fst',tabata:'tag-ss',cardio:'tag-fst'};
-  const tagLabel={ss:'Superset',star:'⭐ Reto',drop:'Drop Set',rp:'Rest-Pause',fst:'FST-7',tabata:'Tabata',cardio:'Cardio'};
-  const cardClass={tabata:'tabata',cardio:'cardio',star:'star',ss:'superset',drop:'superset',rp:'superset'};
-  let html=`<div class="hint-box">💡 Toca cualquier ejercicio para ver el timer de descanso y tips</div>`;
-  w.exercises.forEach((ex,i)=>{
-    const cc=cardClass[ex.tag]||'';
-    html+=`<div class="ex-card ${cc}">
-      <div class="ex-header" onclick="toggleDetail(${i})">
-        <div class="ex-left">
-          ${ex.tag?`<span class="ex-tag ${tagMap[ex.tag]}">${tagLabel[ex.tag]}</span>`:''}
-          <div class="ex-name">${ex.name}</div>
-          ${ex.note?`<div class="ex-note">${ex.note}</div>`:''}
-        </div>
-        <div class="ex-right">
-          <div class="ex-sets">${ex.sets}</div>
-          <div class="ex-rest ${ex.restClass}">${ex.rest}</div>
-        </div>
-      </div>
-      <div class="ex-detail" id="detail-${i}">
-        ${ex.detail?`<div class="ex-detail-text">${ex.detail}</div>`:''}
-        ${ex.rest!=='—'&&ex.rest!=='→ A2'&&ex.rest!=='→ B2'?`
-        <div class="rest-timer">
-          <button class="timer-btn" onclick="startTimer(${i},'${ex.rest}')">⏱ Timer ${ex.rest}</button>
-          <div class="timer-display" id="timer-${i}"></div>
-        </div>`:''}
-      </div>
-    </div>`;
-  });
-  document.getElementById('exerciseList').innerHTML=`<div class="section-label">Ejercicios</div>`+html;
-  setTimeout(()=>document.getElementById('workoutSection').scrollIntoView({behavior:'smooth',block:'start'}),100);
-}
-
-function toggleDetail(i){document.getElementById('detail-'+i).classList.toggle('open');}
-
-function startTimer(id,restStr){
-  const match=restStr.match(/(\d+(?:\.\d+)?)\s*(min|seg)/);if(!match)return;
-  let secs=Math.round(parseFloat(match[1])*(match[2]==='min'?60:1));
-  if(activeTimers[id])clearInterval(activeTimers[id]);
-  const el=document.getElementById('timer-'+id);
-  function tick(){if(secs<=0){clearInterval(activeTimers[id]);el.textContent='✓';el.style.color='var(--green)';return;}const m=Math.floor(secs/60),s=secs%60;el.textContent=m>0?`${m}:${String(s).padStart(2,'0')}`:`${s}s`;el.style.color=secs<=10?'var(--red)':'var(--green)';secs--;}
-  tick();activeTimers[id]=setInterval(tick,1000);
-}
-
-function setFeeling(f){selectedFeeling=f;document.querySelectorAll('.feeling-btn').forEach(b=>b.classList.toggle('selected',b.dataset.f===f));}
-
-async function saveSession(){
-  if(!selectedVariant){showToast('Elige un workout primero','#f97316');return;}
-  const w=WORKOUTS[selectedVariant];
-  const today=tday();
-  const pullups=w.isPullDay?(parseInt(document.getElementById('fPullups').value)||null):null;
-  const bodyWeight=parseFloat(document.getElementById('fWeight').value)||null;
-  const lift=parseInt(document.getElementById('fLift').value)||null;
-  const session={
-    date:today,type:w.type,workoutKey:selectedVariant,
-    pullups,bodyWeight,
-    squat:w.type==='legs'?lift:null,
-    bench:w.type==='push'?lift:null,
-    deadlift:w.type==='pull'?lift:null,
-    feeling:selectedFeeling,isMakeup,ts:Date.now()
-  };
-  const idx=state.sessions.findIndex(s=>s.date===today&&s.workoutKey===selectedVariant);
-  if(idx>=0)state.sessions[idx]=session;else state.sessions.push(session);
-  state.sessions.sort((a,b)=>(b.ts||0)-(a.ts||0));
-  await saveState(session);
-  ['fPullups','fWeight','fLift'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  selectedFeeling='';document.querySelectorAll('.feeling-btn').forEach(b=>b.classList.remove('selected'));
-  updateTopBar();
-  showToast(pullups?`⭐ ${pullups} DOMINADAS · STICKER ✓`:(isMakeup?'🔄 MAKEUP SESSION ✓':'✓ STICKER DE HOY GANADO'));
-  isMakeup=false;
-}
-
-// ── TOP BAR ──
-function updateTopBar(){
-  document.getElementById('tbStreak').textContent='🔥 '+calcStreak();
-  document.getElementById('tbWeek').textContent='SEM '+getCurrentWeek();
-}
-function calcStreak(){
-  const dates=new Set(state.sessions.map(s=>s.date));
-  let streak=0;
-  for(let i=0;i<90;i++){const d=new Date();d.setDate(d.getDate()-i);if(dates.has(ldate(d)))streak++;else if(i>0)break;}
-  return streak;
-}
-function getCurrentWeek(){
-  const start=new Date(PROGRAM_START+'T12:00:00');
-  const diff=Math.floor((new Date()-start)/(1000*60*60*24));
-  return Math.min(8,Math.max(1,Math.floor(diff/7)+1));
-}
-function getBestPullups(){const s=state.sessions.filter(x=>x.pullups);return s.length?Math.max(...s.map(x=>x.pullups)):6;}
-function getWeekStart(){const d=new Date();const dow=d.getDay();d.setDate(d.getDate()-(dow===0?6:dow-1));return ldate(d);}
-
-// ── NAV ──
-function showPage(id,el){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');el.classList.add('active');
-  if(id==='stickers'){renderCalendar();renderLog();renderStats();}
-  if(id==='progreso'){renderChart();renderWeekTargets();}
-  if(id==='reto'){renderReto();}
-}
-
-// ── CALENDAR ──
-function renderCalendar(){
-  const y=calViewDate.getFullYear(),m=calViewDate.getMonth();
-  const months=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-  document.getElementById('calMonth').textContent=`${months[m]} ${y}`;
-  const first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();
-  const today=tday();let html='';
-  ['D','L','M','X','J','V','S'].forEach(d=>html+=`<div class="cal-dow">${d}</div>`);
-  for(let i=0;i<first;i++)html+='<div class="cal-day empty"></div>';
-  for(let d=1;d<=days;d++){
-    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const sessArr=state.sessions.filter(s=>s.date===ds);
-    const isToday=ds===today;
-    const hasPU=sessArr.some(s=>s.pullups);
-    const isMU=sessArr.some(s=>s.isMakeup);
-    let cls='cal-day';
-    if(isToday)cls+=' today';if(sessArr.length)cls+=' has-sticker';if(hasPU)cls+=' is-pull';if(isMU&&!hasPU)cls+=' is-makeup';
-    const sticker=sessArr.length?(hasPU?'⭐':isMU?'🔄':(sessArr[0].feeling||'✓')):'';
-    html+=`<div class="${cls}"><span class="cal-day-num">${d}</span>${sticker?`<span class="cal-sticker">${sticker}</span>`:''}</div>`;
+  function exerciseSketch(ex){
+    const d=EXERCISE_SKETCHES[exerciseSketchKey(ex)];if(!d)return '';
+    const label=escapeText('Ilustración de '+cleanName(ex.name));
+    return `<figure class="exercise-sketch"><svg xmlns="http://www.w3.org/2000/svg" width="128" height="106" viewBox="0 0 220 170" role="img" aria-label="${label}" focusable="false"><title>${label}</title><path d="${d}" fill="none" stroke="#536852" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></figure>`;
   }
-  document.getElementById('calGrid').innerHTML=html;
-}
-function changeMonth(dir){calViewDate.setMonth(calViewDate.getMonth()+dir);renderCalendar();}
-
-function renderLog(){
-  const el=document.getElementById('logList');
-  if(!state.sessions.length){el.innerHTML='<div class="no-data">Sin sesiones aún</div>';return;}
-  const typeNames={push:'Push 🔵',pull:'Pull ⭐',legs:'Legs 🔴'};
-  el.innerHTML=state.sessions.slice(0,15).map(s=>{
-    const d=new Date((s.date||'').substring(0,10)+'T12:00:00');
-    const lifts=[s.squat?`Squat ${s.squat}`:null,s.bench?`Bench ${s.bench}`:null,s.deadlift?`DL ${s.deadlift}`:null,s.bodyWeight?`${s.bodyWeight}lbs`:null].filter(Boolean).join(' · ');
-    return `<div class="log-item">
-      <div class="log-date">${isNaN(d)?'—':d.toLocaleDateString('es',{weekday:'short'}).toUpperCase()}<br>${isNaN(d)?'—':d.getDate()}</div>
-      <div class="log-feel">${s.feeling||'✓'}</div>
-      <div class="log-body">
-        <div class="log-type">${typeNames[s.type]||s.type}${s.isMakeup?' <span class="makeup-badge">🔄 makeup</span>':''}</div>
-        <div class="log-meta">${lifts||'—'}</div>
-      </div>
-      ${s.pullups?`<div class="log-pu">${s.pullups}</div>`:''}
-    </div>`;
-  }).join('');
-}
-function renderStats(){
-  document.getElementById('sStreak').textContent=calcStreak();
-  document.getElementById('sTotal').textContent=state.sessions.length;
-  document.getElementById('sWeek').textContent=state.sessions.filter(s=>s.date>=getWeekStart()).length;
-}
-
-// ── CHARTS ──
-function selectChart(metric,el){
-  currentChart=metric;
-  document.querySelectorAll('.chart-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');
-  const labels={pullups:'⭐ Dominadas',weight:'⚖️ Peso corporal (lbs)',squat:'🏋️ Sentadilla (lbs)',bench:'💪 Press banca (lbs)'};
-  document.getElementById('chartLabel').textContent=labels[metric];renderChart();
-}
-function renderChart(){
-  const m=currentChart;
-  const filtered=state.sessions.filter(s=>m==='pullups'?s.pullups:m==='weight'?s.bodyWeight:m==='squat'?s.squat:s.bench).slice().reverse();
-  const canvas=document.getElementById('mainChart'),empty=document.getElementById('chartEmpty');
-  if(!filtered.length){canvas.style.display='none';empty.style.display='flex';return;}
-  canvas.style.display='block';empty.style.display='none';
-  const labels=filtered.map(s=>new Date(s.date.substring(0,10)+'T12:00:00').toLocaleDateString('es',{day:'numeric',month:'short'}));
-  const data=filtered.map(s=>m==='pullups'?s.pullups:m==='weight'?s.bodyWeight:m==='squat'?s.squat:s.bench);
-  const colors={pullups:'#22c55e',weight:'#f97316',squat:'#3b82f6',bench:'#a855f7'};
-  const fills={pullups:'rgba(34,197,94,0.08)',weight:'rgba(249,115,22,0.08)',squat:'rgba(59,130,246,0.08)',bench:'rgba(168,85,247,0.08)'};
-  if(chartInstance)chartInstance.destroy();
-  const datasets=[{data,borderColor:colors[m],backgroundColor:fills[m],fill:true,tension:0.4,pointBackgroundColor:colors[m],pointRadius:4,pointHoverRadius:6,borderWidth:2}];
-  if(m==='pullups')datasets.push({data:labels.map(()=>12),borderColor:'rgba(234,179,8,0.35)',borderDash:[5,5],fill:false,pointRadius:0,borderWidth:1.5});
-  chartInstance=new Chart(canvas,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#12151f',borderColor:'#1c2130',borderWidth:1,titleColor:'#6a778f',bodyColor:'#edf0f8',titleFont:{family:'JetBrains Mono',size:10},bodyFont:{family:'Bebas Neue',size:20},padding:10}},scales:{x:{grid:{color:'rgba(255,255,255,0.03)'},ticks:{color:'#48526a',font:{family:'JetBrains Mono',size:8},maxRotation:0}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#48526a',font:{family:'JetBrains Mono',size:8}},beginAtZero:false}}}});
-}
-function renderWeekTargets(){
-  const start=new Date(PROGRAM_START+'T12:00:00');
-  document.getElementById('weekTargetsList').innerHTML=WEEK_TARGETS.map((wt,i)=>{
-    const ws=new Date(start);ws.setDate(ws.getDate()+i*7);const we=new Date(ws);we.setDate(we.getDate()+6);
-    const inWeek=state.sessions.filter(s=>s.pullups&&new Date(s.date.substring(0,10)+'T12:00:00')>=ws&&new Date(s.date.substring(0,10)+'T12:00:00')<=we);
-    const best=inWeek.length?Math.max(...inWeek.map(s=>s.pullups)):null;
-    const pct=best?Math.min(100,(best/wt.pu)*100):0;
-    return `<div class="week-target"><div class="wt-week">S${wt.w}</div><div class="wt-mid"><div class="wt-label">${best>=wt.pu?'✅':'○'} Meta: ${wt.pu} dominadas</div><div class="wt-bar"><div class="wt-fill" style="width:${pct}%"></div></div></div><div class="wt-target">${best||wt.pu}<span style="font-size:12px;color:var(--muted2);">${best?`/${wt.pu}`:''}</span></div></div>`;
-  }).join('');
-}
-function renderReto(){
-  const cw=getCurrentWeek();const start=new Date(PROGRAM_START+'T12:00:00');
-  document.getElementById('retoContent').innerHTML=WEEK_TARGETS.map((wt,i)=>{
-    const isCurrent=i+1===cw,isPast=i+1<cw;
-    const ws=new Date(start);ws.setDate(ws.getDate()+i*7);const we=new Date(ws);we.setDate(we.getDate()+6);
-    const inWeek=state.sessions.filter(s=>s.pullups&&new Date(s.date.substring(0,10)+'T12:00:00')>=ws&&new Date(s.date.substring(0,10)+'T12:00:00')<=we);
-    const best=inWeek.length?Math.max(...inWeek.map(s=>s.pullups)):null;
-    return `<div class="reto-week ${isCurrent?'current':''} ${isPast&&!best?'done':''}">
-      <div class="rw-top"><div class="rw-label ${isCurrent?'current-label':''}">${isPast?(best>=wt.pu?'✅':'⚠️'):isCurrent?'👉 AHORA':'○'} SEMANA ${wt.w}</div><div class="rw-target">${best?`${best}/`:''}${wt.pu}</div></div>
-      <div class="rw-info">${wt.proto}</div><div class="rw-challenge">🎯 ${wt.challenge}</div>
-    </div>`;
-  }).join('');
-}
-
-function showToast(msg,color){
-  const t=document.getElementById('toast');t.textContent=msg;t.style.background=color||'var(--green)';t.style.color=color?'#fff':'#000';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);
-}
-
-async function init(){
-  document.getElementById('syncDot').textContent='🔄';
-  await loadState();
-  autoSelectToday();
-  updateTopBar();
-  document.getElementById('syncDot').textContent=state.sessions.length?'🟢':'☁️';
-}
-init();
+  function showOverview(key){selectedKey=key;const w=WORKOUTS[key];frame('overview',`${back('back-variant')}<p class="eyebrow">Tu entrenamiento</p><h1>${TYPE[w.type].name}<br>${w.variant==='heavy'?'Fuerza':'Volumen'}</h1><p class="lead">${TYPE[w.type].muscles}.</p><div class="meta-line"><span>${w.exercises.length} ejercicios</span><span>${escapeText(w.duration.replace('~','Aprox. '))}</span></div><div class="next-exercise"><p class="small">Empiezas con</p><p class="routine-name">${escapeText(cleanName(w.exercises[0].name))}</p></div><div class="actions"><button class="primary" data-action="start">Empezar entrenamiento ${icon('arrow')}</button></div>`);}
+  function restSeconds(text){const m=text.match(/(\d+(?:\.\d+)?)\s*(min|seg)/);return m?Math.round(Number(m[1])*(m[2]==='min'?60:1)):0;}
+  function setTotal(ex){const m=ex.sets.match(/^(\d+)×/);return m?Number(m[1]):1;}
+  function isTimed(ex){return !/^\d+×/.test(ex.sets);}
+  function buildQueue(w){const q=[];for(let i=0;i<w.exercises.length;i++){const ex=w.exercises[i],pair=/^[AB]1\s*·/.test(ex.name)&&new RegExp('^'+ex.name[0]+'2\\s*·').test(w.exercises[i+1]?.name||'');if(pair){const next=w.exercises[i+1],rounds=Math.max(setTotal(ex),setTotal(next));for(let s=1;s<=rounds;s++){if(s<=setTotal(ex))q.push({exIndex:i,set:s,total:setTotal(ex),rest:0});if(s<=setTotal(next))q.push({exIndex:i+1,set:s,total:setTotal(next),rest:restSeconds(next.rest)});}i++;}else for(let s=1;s<=setTotal(ex);s++)q.push({exIndex:i,set:s,total:setTotal(ex),rest:restSeconds(ex.rest)});}return q;}
+  function startWorkout(){if(!WORKOUTS[selectedKey])return;draft={key:selectedKey,queue:buildQueue(WORKOUTS[selectedKey]),cursor:0,logs:[],startedAt:Date.now(),date:localDate(),phase:'exercise',bodyWeight:'',feeling:'',restEndsAt:null,restRemaining:null,restPaused:false};saveDraft();showExercise();}
+  function resume(){selectedKey=draft.key;if(draft.phase==='summary'||draft.cursor>=draft.queue.length)showSummary();else if(draft.phase==='rest')showRest();else showExercise();}
+  function currentStep(){return draft.queue[draft.cursor];}
+  function setNotes(){return `<details class="set-notes" id="set-notes"><summary>Anotar peso y repeticiones <span class="small">· opcional</span></summary><form id="set-form"><div class="fields"><div class="field"><label for="set-weight">Peso <span class="small">· opcional</span></label><div class="input-wrap"><input id="set-weight" name="weight" type="number" min="0" max="5000" step="0.5" inputmode="decimal" autocomplete="off" placeholder="—"><span>lb</span></div></div><div class="field"><label for="set-reps">Repeticiones <span class="small">· opcional</span></label><div class="input-wrap"><input id="set-reps" name="reps" type="number" min="0" max="300" step="1" inputmode="numeric" autocomplete="off" placeholder="—"><span>reps</span></div></div></div><p class="field-note">Puedes completar la serie sin anotar datos.</p><p id="form-error" class="error" hidden></p></form></details>`;}
+  function showExercise(){
+    stopTick();if(!draft||draft.cursor>=draft.queue.length){showSummary();return;}
+    draft.phase='exercise';saveDraft();
+    const w=WORKOUTS[draft.key],step=currentStep(),ex=w.exercises[step.exIndex],timed=isTimed(ex),tag={ss:'Superserie',drop:'Drop set',rp:'Rest-pause',fst:'FST-7',tabata:'Core · Tabata',cardio:'Cardio'}[ex.tag]||'';
+    const rest=step.rest?step.rest>=60?(step.rest/60)+' min':step.rest+' s':/→/.test(ex.rest)?'Sin pausa':'—';
+    frame('exercise',`<div class="progress-track" role="progressbar" aria-label="Series recorridas" aria-valuemin="0" aria-valuemax="${draft.queue.length}" aria-valuenow="${draft.cursor}"><div style="width:${100*draft.cursor/draft.queue.length}%"></div></div><p class="eyebrow">${escapeText(workoutLabel(draft.key))}<span class="dot"></span>${step.exIndex+1} de ${w.exercises.length}</p>${tag?`<span class="technique">${tag}</span>`:''}<div class="exercise-heading"><h1 class="exercise-title">${escapeText(cleanName(ex.name))}</h1>${exerciseSketch(ex)}</div><div class="prescription"><div><strong>${escapeText(ex.sets)}</strong><span>${timed?'Duración prevista':'Series × repeticiones'}</span></div>${!timed?`<div><strong>${rest}</strong><span>Descanso</span></div>`:''}</div>${ex.note||ex.detail?`<button class="tip-toggle" data-action="tip" aria-expanded="false" aria-controls="technique-tip">Ver indicaciones</button><div id="technique-tip" hidden>${ex.note?`<p class="tip">${escapeText(ex.note)}</p>`:''}${ex.detail?`<p class="tip">${escapeText(ex.detail)}</p>`:''}</div>`:''}${timed?'':`<p class="set-count">Serie ${step.set} de ${step.total}</p><div class="set-markers" aria-hidden="true">${Array.from({length:step.total},(_,i)=>`<span class="set-marker ${i<step.set-1?'done':i===step.set-1?'current':''}"></span>`).join('')}</div>${setNotes()}`}<div class="actions"><button class="primary" data-action="complete">${timed?'Bloque completado':'Completar serie'} ${icon('check')}</button><div class="session-secondary"><button class="text-button" data-action="skip">${timed?'Omitir bloque':'Omitir serie'}</button><button class="text-button" data-action="finish-early">Finalizar</button></div></div>`);
+  }
+  function completeStep(skipped=false){
+    const step=currentStep(),ex=WORKOUTS[draft.key].exercises[step.exIndex];let reps=null,weight=null;
+    if(!skipped&&!isTimed(ex)){
+      const repsEl=document.getElementById('set-reps'),weightEl=document.getElementById('set-weight');
+      if(!repsEl.checkValidity()||!weightEl.checkValidity()){
+        document.getElementById('set-notes').open=true;const error=document.getElementById('form-error');error.textContent='Usa valores válidos, mayores o iguales a cero, o deja los campos vacíos.';error.hidden=false;(!repsEl.checkValidity()?repsEl:weightEl).focus();return;
+      }
+      reps=repsEl.value===''?null:Number(repsEl.value);weight=weightEl.value===''?null:Number(weightEl.value);
+    }
+    draft.logs.push({...step,reps,weight,skipped,completedAt:Date.now()});draft.cursor++;
+    if(draft.cursor>=draft.queue.length){draft.phase='summary';saveDraft();showSummary();return;}
+    if(step.rest>0&&!skipped){draft.phase='rest';draft.restEndsAt=Date.now()+step.rest*1000;draft.restRemaining=step.rest;draft.restPaused=false;saveDraft();showRest();}else{saveDraft();showExercise();}
+  }
+  function remainingSeconds(){return draft.restPaused?Math.max(0,draft.restRemaining||0):Math.max(0,Math.ceil((draft.restEndsAt-Date.now())/1000));}
+  function formatTime(seconds){return `${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`;}
+  function stopTick(){if(timerInterval){clearInterval(timerInterval);timerInterval=null;}}
+  function showRest(){stopTick();const step=currentStep(),ex=WORKOUTS[draft.key].exercises[step.exIndex];frame('rest',`<div class="rest-screen"><p class="eyebrow" style="justify-content:center">Serie registrada</p><h1>Descansa.</h1><p class="lead" style="margin-left:auto;margin-right:auto">Toma tu tiempo antes de continuar.</p><div class="timer" id="timer" role="timer" aria-label="Tiempo restante">${formatTime(remainingSeconds())}</div><div class="timer-controls"><button class="timer-control" data-action="adjust-rest" data-value="-15" aria-label="Restar quince segundos">−15</button><button class="timer-control" data-action="pause-rest" id="pause-rest" aria-label="${draft.restPaused?'Reanudar':'Pausar'} descanso">${icon(draft.restPaused?'play':'pause')}</button><button class="timer-control" data-action="adjust-rest" data-value="15" aria-label="Añadir quince segundos">+15</button></div><p id="rest-status" class="small" role="status" aria-live="polite">${remainingSeconds()===0?'Descanso terminado. Continúa cuando estés listo.':draft.restPaused?'Temporizador en pausa.':''}</p><div class="rest-next"><p class="small">A continuación</p><p class="routine-name">${escapeText(cleanName(ex.name))}</p><p class="small">${isTimed(ex)?escapeText(ex.sets):`Serie ${step.set} de ${step.total}`}</p></div><div class="actions"><button class="primary" data-action="next">Continuar ${icon('arrow')}</button></div></div>`);timerInterval=setInterval(updateTimer,250);}
+  function updateTimer(){if(!draft||page!=='rest')return;const n=remainingSeconds(),el=document.getElementById('timer');if(el)el.textContent=formatTime(n);if(n===0){const status=document.getElementById('rest-status');if(status)status.textContent='Descanso terminado. Continúa cuando estés listo.';stopTick();}else document.getElementById('rest-status').textContent=draft.restPaused?'Temporizador en pausa.':'';}
+  function adjustRest(delta){const n=Math.max(0,remainingSeconds()+delta);draft.restRemaining=n;draft.restEndsAt=Date.now()+n*1000;saveDraft();updateTimer();if(n>0&&!timerInterval)timerInterval=setInterval(updateTimer,250);}
+  function pauseRest(){draft.restRemaining=remainingSeconds();draft.restPaused=!draft.restPaused;if(!draft.restPaused)draft.restEndsAt=Date.now()+draft.restRemaining*1000;const el=document.getElementById('pause-rest');el.innerHTML=icon(draft.restPaused?'play':'pause');el.setAttribute('aria-label',draft.restPaused?'Reanudar descanso':'Pausar descanso');saveDraft();updateTimer();if(remainingSeconds()>0&&!timerInterval)timerInterval=setInterval(updateTimer,250);}
+  function showSummary(){stopTick();draft.phase='summary';saveDraft();const count=draft.logs.filter(x=>!x.skipped).length,w=WORKOUTS[draft.key],done=new Set(draft.logs.filter(x=>!x.skipped).map(x=>x.exIndex)).size;frame('summary',`<p class="eyebrow">Cerrar sesión</p><h1>${count?'Buen trabajo.':'Tu sesión.'}</h1><p class="lead">${escapeText(workoutLabel(draft.key))}. Guarda lo que hiciste hoy.</p><div class="summary-list"><div class="summary-row"><span>Ejercicios registrados</span><strong>${done} de ${w.exercises.length}</strong></div><div class="summary-row"><span>Series y bloques registrados</span><strong>${count}</strong></div></div><form id="summary-form"><div class="field full-field"><label for="body-weight">Peso corporal <span class="small">· opcional</span></label><div class="input-wrap"><input id="body-weight" type="number" step="0.1" min="1" max="1500" inputmode="decimal" value="${escapeText(draft.bodyWeight||'')}" placeholder="—"><span>lb</span></div></div><div class="field full-field"><label>¿Cómo te sentiste? <span class="small">· opcional</span></label><div class="feeling-options">${['Con poca energía','Fue exigente','Me sentí bien','Con mucha energía'].map((f,i)=>`<button type="button" class="feeling-option ${draft.feeling===String(i)?'selected':''}" data-action="feeling" data-value="${i}" aria-pressed="${draft.feeling===String(i)}">${f}</button>`).join('')}</div></div><p class="error" id="save-error" hidden></p></form><div class="actions"><button class="primary" data-action="save" id="save-session">Guardar sesión ${icon('check')}</button>${draft.cursor<draft.queue.length?'<button class="text-button" data-action="return-exercise">Seguir entrenando</button>':''}</div>`);}
+  function maxLift(pattern){const w=WORKOUTS[draft.key];const weights=draft.logs.filter(s=>!s.skipped&&(s.reps==null||Number(s.reps)>0)&&s.weight!==null&&pattern.test(w.exercises[s.exIndex].name)).map(s=>s.weight);return weights.length?Math.max(...weights):null;}
+  async function saveSession(){if(saving||!draft)return;const field=document.getElementById('body-weight');if(!field.checkValidity()){const e=document.getElementById('save-error');e.textContent='Revisa el peso corporal o deja el campo vacío.';e.hidden=false;field.focus();return;}saving=true;const w=WORKOUTS[draft.key],pulls=draft.logs.filter(s=>!s.skipped&&s.reps!==null&&/dominadas/i.test(w.exercises[s.exIndex].name));const session={date:draft.date,type:w.type,workoutKey:draft.key,pullups:pulls.length?Math.max(...pulls.map(s=>s.reps)):null,bodyWeight:field.value===''?null:Number(field.value),squat:maxLift(/^Sentadilla back squat/),bench:maxLift(/^Press banca con barra/),deadlift:maxLift(/^Peso muerto convencional/),feeling:['💀','😤','💪','🔥'][Number(draft.feeling)]||'',isMakeup:false,ts:Date.now(),durationSeconds:Math.round((Date.now()-draft.startedAt)/1000),sets:draft.logs.slice()};if(draft.feeling==='')session.feeling='';state.sessions=mergeSessions(state.sessions,[session]);if(!storeState()){saving=false;return;}pending=pending.filter(s=>sessionKey(s)!==sessionKey(session));pending.push(session);try{localStorage.setItem(SYNC_KEY,JSON.stringify(pending));}catch{}draft=null;saveDraft();saving=false;frame('saved',`${earnsSticker(session)?`<div class="earned-sticker">${sticker()}</div><p class="eyebrow">Ficha ganada · ${escapeText(dateLabel(session.date))}</p>`:`<div class="success-icon">${icon('check')}</div><p class="eyebrow">Sesión guardada</p>`}<h1>Por hoy,<br>listo.</h1><p class="lead">${escapeText(workoutLabel(session.workoutKey))} quedó en tu historial.</p><div class="actions"><button class="primary" data-action="history">Ver mi calendario ${icon('arrow')}</button><button class="text-button" data-action="home">Volver al inicio</button></div>`);syncSession(session);}
+  function sticker(){return '<svg class="sticker" viewBox="0 0 36 36" aria-hidden="true"><path class="sticker-seal" d="M18 2l3.6 2.8 4.5-.6 1.6 4.3 4.3 1.6-.6 4.5L34 18l-2.8 3.6.6 4.5-4.3 1.6-1.6 4.3-4.5-.6L18 34l-3.6-2.8-4.5.6-1.6-4.3L4 26.1l.6-4.5L2 18l2.8-3.6-.6-4.5 4.3-1.6L10.1 4l4.5.6Z"/><path class="sticker-star" d="m18 9.3 2.7 5.5 6 .9-4.3 4.2 1 6-5.4-2.8-5.4 2.8 1-6-4.3-4.2 6-.9Z"/></svg>';}
+  function earnsSticker(session){return !Array.isArray(session.sets)||session.sets.some(log=>!log.skipped);}
+  function stickerDays(){return new Set(state.sessions.filter(earnsSticker).map(s=>s.date));}
+  function calendarMarkup(){
+    const y=calendarDate.getFullYear(),m=calendarDate.getMonth(),monthKey=localDate(calendarDate).slice(0,7),today=localDate(),days=stickerDays();
+    const sessionsByDate=new Map();for(const s of state.sessions){const list=sessionsByDate.get(s.date)||[];list.push(s);sessionsByDate.set(s.date,list);}
+    const first=(new Date(y,m,1).getDay()+6)%7,last=new Date(y,m+1,0).getDate(),count=[...days].filter(d=>d.startsWith(monthKey)).length;
+    const week=[['L','lunes'],['M','martes'],['X','miércoles'],['J','jueves'],['V','viernes'],['S','sábado'],['D','domingo']];
+    let cells=week.map(([short,full])=>`<span class="calendar-weekday" aria-label="${full}">${short}</span>`).join('');
+    cells+='<span class="calendar-blank" aria-hidden="true"></span>'.repeat(first);
+    for(let day=1;day<=last;day++){
+      const date=localDate(new Date(y,m,day)),sessions=sessionsByDate.get(date)||[],earned=days.has(date),future=date>today,isToday=date===today;
+      const label=dateLabel(date,{weekday:'long',day:'numeric',month:'long',year:'numeric'})+(sessions.length?`, ${sessions.length} ${sessions.length===1?'sesión':'sesiones'}`:', sin sesiones')+(earned?', ficha ganada':'');
+      cells+=`<button type="button" class="calendar-day ${isToday?'today':''} ${earned?'has-sticker':''} ${future?'future':''}" data-action="calendar-day" data-value="${date}" aria-label="${escapeText(label)}" ${isToday?'aria-current="date"':''} ${future&&!sessions.length?'disabled':''}><span class="calendar-number">${day}</span>${earned?sticker():sessions.length?'<span class="calendar-session-dot" aria-hidden="true"></span>':''}</button>`;
+    }
+    const trailing=(7-(first+last)%7)%7;cells+='<span class="calendar-blank" aria-hidden="true"></span>'.repeat(trailing);
+    return `<section class="calendar" aria-label="Calendario de entrenamiento"><div class="calendar-heading"><h2 class="calendar-month" id="calendar-month" aria-live="polite">${escapeText(calendarDate.toLocaleDateString('es',{month:'long',year:'numeric'}))}</h2><div class="calendar-controls"><button type="button" class="calendar-control" id="calendar-prev" data-action="calendar-month" data-value="-1" aria-label="Mes anterior">${icon('back')}</button><button type="button" class="calendar-control next" id="calendar-next" data-action="calendar-month" data-value="1" aria-label="Mes siguiente">${icon('back')}</button></div></div><div class="calendar-grid">${cells}</div><div class="calendar-footer"><span class="calendar-total">${count} ${count===1?'ficha':'fichas'} este mes</span>${monthKey!==today.slice(0,7)?'<button class="text-button" data-action="calendar-today">Volver a este mes</button>':''}</div><p class="calendar-caption">Una ficha por cada día que entrenas.</p>${!state.sessions.length?'<div class="calendar-empty">Tu primera ficha empieza con una sesión.<br><button class="text-button" data-action="home">Entrenar hoy</button></div>':''}</section>`;
+  }
+  function historyRow(s){return `<button class="history-item" data-action="detail" data-key="${escapeText(sessionKey(s))}" ${page==='day'?`data-date="${s.date}"`:''}><span class="history-date">${escapeText(dateLabel(s.date,{month:'short'}))}<strong>${escapeText(dateLabel(s.date,{day:'numeric'}))}</strong></span><span class="history-body"><strong>${escapeText(workoutLabel(s.workoutKey,s.type))}</strong><span>${sessionMeta(s)}</span></span>${icon('arrow')}</button>`;}
+  function historyTools(){return `<details class="history-tools"><summary>Gestionar historial</summary><div class="export"><button class="text-button" data-action="export">Exportar historial</button><button class="text-button" data-action="import">Importar historial</button></div><div class="cloud-note" id="cloud-note">${pending.length?'Hay sesiones pendientes de sincronizar.':cloudLoaded?'Historial actualizado.':'Puedes recuperar las sesiones de tu versión anterior.'}</div><button class="sync-button" data-action="sync" id="sync-button">${pending.length?'Sincronizar sesiones':cloudLoaded?'Actualizar historial':'Recuperar historial anterior'}</button></details>`;}
+  function showHistory(focus=true){
+    stopTick();page='history';detailReturnDate=null;
+    const list=state.sessions.length?`<p class="history-count">${state.sessions.length} ${state.sessions.length===1?'sesión registrada':'sesiones registradas'}</p>${state.sessions.map(historyRow).join('')}`:`<div class="empty">${icon('history')}<h2>Tu primera sesión<br>empieza hoy.</h2><p>Cada día entrenado suma una ficha a tu calendario.</p><button class="secondary" data-action="home">Elegir rutina</button></div>`;
+    frame('history',`<p class="eyebrow">Tu registro</p><h1>Historial.</h1><div class="history-tabs" role="group" aria-label="Vista del historial"><button class="history-tab ${historyMode==='calendar'?'selected':''}" id="history-calendar" data-action="history-mode" data-value="calendar" aria-pressed="${historyMode==='calendar'}">Calendario</button><button class="history-tab ${historyMode==='list'?'selected':''}" id="history-list" data-action="history-mode" data-value="list" aria-pressed="${historyMode==='list'}">Sesiones</button></div>${historyMode==='calendar'?calendarMarkup():list}${historyTools()}`,focus);
+  }
+  function changeCalendarMonth(direction){calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()+direction,1);showHistory(false);document.getElementById(direction<0?'calendar-prev':'calendar-next').focus();}
+  function showCalendarDay(date){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return;
+    stopTick();detailReturnDate=date;page='day';const sessions=state.sessions.filter(s=>s.date===date),earned=sessions.some(earnsSticker);
+    frame('day',`${back('back-calendar')}${earned?`<div class="earned-sticker">${sticker()}</div><p class="day-sticker-label">Ficha ganada</p>`:'<p class="eyebrow">Tu calendario</p>'}<h1>${escapeText(dateLabel(date,{day:'numeric',month:'long'}))}.</h1><p class="small">${escapeText(dateLabel(date,{weekday:'long',year:'numeric'}))}</p><div class="calendar-day-view">${sessions.length?sessions.map(historyRow).join(''):'<p class="lead">No hay una sesión registrada este día.</p>'}</div>`);
+  }
+  function sessionMeta(s){const bits=[];if(Array.isArray(s.sets)){const n=s.sets.filter(x=>!x.skipped).length;bits.push(`${n} series y bloques`);}if(s.pullups!==null&&s.pullups!==undefined)bits.push(`${Number(s.pullups)} dominadas`);if(s.bodyWeight!==null)bits.push(`${Number(s.bodyWeight)} lb`);return escapeText(bits.join(' · ')||'Sesión registrada');}
+  function showDetail(index){const s=state.sessions[index];if(!s)return showHistory();const w=WORKOUTS[s.workoutKey],feel={'💀':'Con poca energía','😤':'Fue exigente','💪':'Me sentí bien','🔥':'Con mucha energía'}[s.feeling];frame('detail',`${back(detailReturnDate?'back-day':'history')}<p class="eyebrow">${escapeText(dateLabel(s.date,{weekday:'long',day:'numeric',month:'long',year:'numeric'}))}</p><h1>${escapeText(workoutLabel(s.workoutKey,s.type))}</h1><div class="summary-list">${[['Peso corporal',s.bodyWeight,'lb'],['Dominadas',s.pullups,'reps'],['Press banca',s.bench,'lb'],['Sentadilla',s.squat,'lb'],['Peso muerto',s.deadlift,'lb']].filter(([,v])=>v!==null&&v!==undefined).map(([l,v,u])=>`<div class="summary-row"><span>${l}</span><strong>${Number(v)} ${u}</strong></div>`).join('')}${feel?`<div class="summary-row"><span>Sensación</span><strong>${feel}</strong></div>`:''}</div>${Array.isArray(s.sets)&&s.sets.length&&w?`<h2>Series registradas</h2><div class="records-list">${s.sets.map(log=>{const ex=w.exercises[log.exIndex];if(!ex)return '';return `<div class="records-row"><span>${escapeText(cleanName(ex.name))}<br><span class="small">${isTimed(ex)?'Bloque':`Serie ${Number(log.set)}`}</span></span><strong>${log.skipped?'Omitida':[log.reps!=null?`${Number(log.reps)} reps`:'',log.weight!=null?`${Number(log.weight)} lb`:''].filter(Boolean).join(' · ')||'Completada'}</strong></div>`;}).join('')}</div>`:'<p class="small">Esta sesión se registró en la versión anterior.</p>'}`);}
+  const METRICS={weight:{label:'Peso corporal',key:'bodyWeight',unit:'lb'},pullups:{label:'Dominadas',key:'pullups',unit:'reps'},bench:{label:'Press banca',key:'bench',unit:'lb'},squat:{label:'Sentadilla',key:'squat',unit:'lb'},deadlift:{label:'Peso muerto',key:'deadlift',unit:'lb'}};
+  function showProgress(){stopTick();const m=METRICS[metric],data=state.sessions.filter(s=>s[m.key]!==null&&s[m.key]!==undefined&&Number.isFinite(Number(s[m.key]))).slice().sort((a,b)=>a.date.localeCompare(b.date)||(a.ts||0)-(b.ts||0)),latest=data.at(-1);frame('progress',`<p class="eyebrow">Tus registros, a tu ritmo</p><h1>Progreso.</h1><label class="small" for="metric">Qué quieres ver</label><select id="metric" class="view-select">${Object.entries(METRICS).map(([key,m])=>`<option value="${key}" ${metric===key?'selected':''}>${m.label}</option>`).join('')}</select>${latest?`<p class="small">Último registro · ${escapeText(dateLabel(latest.date))}</p><div class="metric-number">${Number(latest[m.key])}<span>${m.unit}</span></div>${makeChart(data,m)}<div class="chart-note"><span>${escapeText(dateLabel(data[0].date))}</span><span>${data.length} ${data.length===1?'registro':'registros'}</span><span>${escapeText(dateLabel(latest.date))}</span></div><div class="records-list">${data.slice(-6).reverse().map(s=>`<div class="records-row"><span>${escapeText(dateLabel(s.date))}</span><strong>${Number(s[m.key])} ${m.unit}</strong></div>`).join('')}</div>`:`<div class="empty">${icon('progress')}<h2>Aún no hay registros<br>de ${m.label.toLowerCase()}.</h2><p>${metric==='weight'?'Puedes añadir tu peso al guardar una sesión.':'Registra las series de este ejercicio para ver su evolución.'}</p><button class="secondary" data-action="home">Ir a entrenar</button></div>`}`);}
+  function makeChart(data,m){const values=data.map(s=>Number(s[m.key])),min=Math.min(...values),max=Math.max(...values),pad=Math.max((max-min)*.2,max===min?Math.max(1,Math.abs(max)*.025):.5),lo=min-pad,hi=max+pad;const times=data.map(s=>dateObject(s.date).getTime()),first=times[0],last=times.at(-1),sameDate=first===last;const coords=values.map((v,i)=>({x:data.length===1?250:sameDate?50+i/(data.length-1)*420:50+(times[i]-first)/(last-first)*420,y:170-(v-lo)/(hi-lo)*145,v}));return `<svg class="chart" viewBox="0 0 490 200" role="img" aria-label="${m.label}: ${values.join(', ')} ${m.unit}, de más antiguo a más reciente"><title>${m.label}: evolución de los registros</title>${[lo,(lo+hi)/2,hi].map(v=>{const y=170-(v-lo)/(hi-lo)*145;return `<line x1="50" x2="477" y1="${y}" y2="${y}"/><text x="0" y="${y+3}">${v.toFixed(metric==='pullups'?0:1)}</text>`;}).join('')}<polyline points="${coords.map(p=>p.x+','+p.y).join(' ')}"/>${coords.map((p,i)=>`<circle cx="${p.x}" cy="${p.y}" r="3"><title>${escapeText(dateLabel(data[i].date))}: ${p.v} ${m.unit}</title></circle>`).join('')}</svg>`;}
+  async function fetchCloud(url){const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),10000);try{const response=await fetch(url,{signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);return await response.json();}finally{clearTimeout(timeout);}}
+  async function syncSession(session){try{const json=await fetchCloud(`${SCRIPT_URL}?type=gym&action=save&data=${encodeURIComponent(JSON.stringify(session))}`);if(json.status!=='ok'&&json.success!==true)throw new Error('Save not confirmed');pending=pending.filter(s=>sessionKey(s)!==sessionKey(session)||s.ts!==session.ts);try{localStorage.setItem(SYNC_KEY,JSON.stringify(pending));}catch{}return true;}catch{return false;}}
+  async function syncCloud(){if(cloudBusy)return;cloudBusy=true;const btn=document.getElementById('sync-button');if(btn){btn.disabled=true;btn.textContent='Recuperando sesiones…';}let failed=false;for(const s of pending.slice()){if(!await syncSession(s))failed=true;}try{const json=await fetchCloud(`${SCRIPT_URL}?type=gym`);if(json.status!=='ok'||!Array.isArray(json.sessions))throw new Error('Invalid history');state.sessions=mergeSessions(state.sessions,json.sessions);cloudLoaded=true;storeState();if(page==='history')showHistory();notify(failed?'Historial recuperado. Algunas sesiones siguen pendientes de sincronizar.':'Historial actualizado.');}catch{notify('No se pudo conectar. Tus sesiones guardadas en este dispositivo siguen disponibles.');if(btn){btn.disabled=false;btn.textContent='Volver a intentar';}}finally{cloudBusy=false;}}
+  async function loadCloudHistory(){try{const json=await fetchCloud(`${SCRIPT_URL}?type=gym`);if(json.status==='ok'&&Array.isArray(json.sessions)){state.sessions=mergeSessions(state.sessions,json.sessions);cloudLoaded=true;storeState();if(page==='history')showHistory();if(page==='progress')showProgress();}}catch{}}
+  function exportHistory(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='entreno-historial-'+localDate()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+  async function importHistory(file){if(!file)return;try{if(file.size>10000000)throw new Error();const json=JSON.parse(await file.text()),items=Array.isArray(json)?json:json.sessions;if(!Array.isArray(items)||!items.length||items.some(s=>!normalizeSession(s)))throw new Error();state.sessions=mergeSessions(state.sessions,items);if(storeState()){showHistory();notify('Historial importado.');}}catch{notify('Elige un archivo JSON de historial válido.');}document.getElementById('import-file').value='';}
+  document.addEventListener('click',event=>{const el=event.target.closest('[data-action]');if(!el||el.disabled)return;const value=el.dataset.value;switch(el.dataset.action){case'home':showHome();break;case'type':showVariant(value);break;case'variant':showOverview(value);break;case'back-variant':showVariant(selectedType);break;case'start':startWorkout();break;case'resume':resume();break;case'change-workout':if(window.confirm('¿Dejar la sesión en curso y elegir otra rutina? Las series de esta sesión todavía no están en el historial.')){draft=null;saveDraft();showHome();}break;case'complete':completeStep();break;case'skip':completeStep(true);break;case'finish-early':showSummary();break;case'next':showExercise();break;case'adjust-rest':adjustRest(Number(value));break;case'pause-rest':pauseRest();break;case'feeling':draft.feeling=draft.feeling===value?'':value;saveDraft();view.querySelectorAll('.feeling-option').forEach(b=>{const selected=b.dataset.value===draft.feeling;b.classList.toggle('selected',selected);b.setAttribute('aria-pressed',String(selected));});break;case'save':saveSession();break;case'return-exercise':showExercise();break;case'history':showHistory();break;case'progress':showProgress();break;case'detail':detailReturnDate=el.dataset.date||null;showDetail(el.dataset.key?state.sessions.findIndex(s=>sessionKey(s)===el.dataset.key):Number(value));break;case'history-mode':historyMode=value==='list'?'list':'calendar';showHistory(false);document.getElementById('history-'+historyMode).focus();break;case'calendar-month':changeCalendarMonth(Number(value));break;case'calendar-today':calendarDate=new Date(new Date().getFullYear(),new Date().getMonth(),1);showHistory();break;case'calendar-day':showCalendarDay(value);break;case'back-calendar':historyMode='calendar';showHistory();break;case'back-day':showCalendarDay(detailReturnDate);break;case'export':exportHistory();break;case'import':document.getElementById('import-file').click();break;case'sync':syncCloud();break;case'tip':{const tip=document.getElementById('technique-tip');tip.hidden=!tip.hidden;el.setAttribute('aria-expanded',String(!tip.hidden));el.textContent=tip.hidden?'Ver indicaciones':'Ocultar indicaciones';break;}}});
+  document.addEventListener('change',event=>{if(event.target.id==='metric'){metric=event.target.value;showProgress();}if(event.target.id==='import-file')importHistory(event.target.files[0]);});
+  document.addEventListener('input',event=>{if(event.target.id==='body-weight'&&draft){draft.bodyWeight=event.target.value;saveDraft();}});
+  document.addEventListener('submit',event=>{if(event.target.id==='set-form'){event.preventDefault();completeStep();}if(event.target.id==='summary-form'){event.preventDefault();saveSession();}});
+  function init(){const stored=readStored(STORAGE_KEY,{sessions:[]});state={...stored,sessions:mergeSessions([],Array.isArray(stored.sessions)?stored.sessions:[])};pending=readStored(SYNC_KEY,[]);if(!Array.isArray(pending))pending=[];draft=readStored(DRAFT_KEY,null);if(draft&&(!WORKOUTS[draft.key]||!Array.isArray(draft.queue)||!Array.isArray(draft.logs)||!Number.isInteger(draft.cursor)))draft=null;for(const id of ['home','history','progress'])document.getElementById('nav-'+id).innerHTML=icon(id)+({home:'Entrenar',history:'Historial',progress:'Progreso'}[id]);showHome();}
+  init();
+  loadCloudHistory();
 </script>
 </body>
 </html>
