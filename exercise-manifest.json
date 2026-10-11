@@ -1,0 +1,350 @@
+[
+  {
+    "key": "bench",
+    "file": "assets/exercises/bench.webp",
+    "pose": "Barbell flat bench press, person lying flat on bench, bar held above chest.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "incline",
+    "file": "assets/exercises/incline.webp",
+    "pose": "Incline dumbbell bench press, back supported on 35 degree inclined bench, two dumbbells above chest.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "decline",
+    "file": "assets/exercises/decline.webp",
+    "pose": "Decline barbell bench press, head end of bench lower than feet, legs secured on raised end.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "overhead",
+    "file": "assets/exercises/overhead.webp",
+    "pose": "Standing barbell military shoulder press, barbell overhead, torso upright.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "lateral_cable",
+    "file": "assets/exercises/lateral_cable.webp",
+    "pose": "Standing single-arm cable lateral shoulder raise, cable from low pulley crossing to opposite hand, arm out sideways.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "lateral_dumbbell",
+    "file": "assets/exercises/lateral_dumbbell.webp",
+    "pose": "Standing dumbbell lateral raises, both arms extending sideways at shoulder level, elbows softly bent.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "dip",
+    "file": "assets/exercises/dip.webp",
+    "pose": "Parallel bar dips, hands on two parallel bars, suspended body, elbows bent, knees softly folded.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "pushdown",
+    "file": "assets/exercises/pushdown.webp",
+    "pose": "Standing rope triceps cable pushdown at high pulley, elbows tucked, hands near thighs, rope split.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "cable_fly",
+    "file": "assets/exercises/cable_fly.webp",
+    "pose": "Standing high-to-low cable chest fly, two high pulleys, hands meeting low in front of chest.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "arnold",
+    "file": "assets/exercises/arnold.webp",
+    "pose": "Seated Arnold dumbbell shoulder press on upright bench, dumbbells near face, palms toward body in starting position.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "overhead_cable",
+    "file": "assets/exercises/overhead_cable.webp",
+    "pose": "Standing overhead rope cable triceps extension, back to low pulley, elbows above head, rope behind head.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "kickback",
+    "file": "assets/exercises/kickback.webp",
+    "pose": "Single-arm dumbbell triceps kickback, torso hinged forward, upper arm alongside torso, forearm extended backward.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "pullup",
+    "file": "assets/exercises/pullup.webp",
+    "pose": "Unassisted pronated pull-up, hands on overhead horizontal bar, chin above bar, body hanging.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "deadlift",
+    "file": "assets/exercises/deadlift.webp",
+    "pose": "Conventional barbell deadlift starting position, bar on floor close to shins, knees bent, hips above knees, flat back.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "row_bar",
+    "file": "assets/exercises/row_bar.webp",
+    "pose": "Pendlay barbell row, torso nearly horizontal with flat back, bent knees, barbell pulled toward lower ribs.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "row_single",
+    "file": "assets/exercises/row_single.webp",
+    "pose": "One-arm dumbbell row, one knee and same-side hand on flat bench, opposite foot planted, opposite arm rowing dumbbell.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "facepull",
+    "file": "assets/exercises/facepull.webp",
+    "pose": "Standing rope face pull from cable pulley at face height, hands beside ears, elbows raised outward.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "curl_bar",
+    "file": "assets/exercises/curl_bar.webp",
+    "pose": "Standing EZ-bar biceps curl, elbows tucked at sides, recognizable zigzag EZ bar near waist.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "curl_incline",
+    "file": "assets/exercises/curl_incline.webp",
+    "pose": "Incline dumbbell biceps curl seated against 45 degree backrest, arms hanging down beside torso with dumbbells.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "lat_pulldown",
+    "file": "assets/exercises/lat_pulldown.webp",
+    "pose": "Wide-grip lat pulldown, person seated under high pulley, wide bar pulled to upper chest, thighs under pad.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "seated_row",
+    "file": "assets/exercises/seated_row.webp",
+    "pose": "Seated neutral-grip low cable row, upright torso, legs stretched forward slightly bent, feet on plates, narrow handle at abdomen.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "pullover",
+    "file": "assets/exercises/pullover.webp",
+    "pose": "Dumbbell pullover lying lengthwise on flat bench, feet planted, both hands holding one dumbbell behind head, elbows slightly bent.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "rear_fly",
+    "file": "assets/exercises/rear_fly.webp",
+    "pose": "Reverse pec deck rear-delt fly, person seated facing chest pad, arms open sideways holding machine handles.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "preacher",
+    "file": "assets/exercises/preacher.webp",
+    "pose": "Unilateral cable preacher curl, one upper arm supported on sloping preacher pad, one hand curling cable handle from low pulley.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "squat",
+    "file": "assets/exercises/squat.webp",
+    "pose": "Barbell back squat at bottom position, bar on upper trapezius behind neck, heels grounded, hips below knee level.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "rdl",
+    "file": "assets/exercises/rdl.webp",
+    "pose": "Romanian barbell deadlift, standing hip hinge, knees only softly bent, flat back, bar close to shins, hips pushed backward.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "leg_press",
+    "file": "assets/exercises/leg_press.webp",
+    "pose": "45 degree sled leg press machine, person reclined in seat, both feet on angled platform, knees bent.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "split_squat",
+    "file": "assets/exercises/split_squat.webp",
+    "pose": "Bulgarian dumbbell split squat, rear foot elevated on flat bench, front knee bent, torso upright, two dumbbells at sides.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "lying_curl",
+    "file": "assets/exercises/lying_curl.webp",
+    "pose": "Lying leg curl machine, person face down on flat bench, knees bent, roller behind ankles lifted toward buttocks.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "calf",
+    "file": "assets/exercises/calf.webp",
+    "pose": "Standing calf raise machine, shoulder pads on shoulders, heels raised off edge of small step, hands holding handles.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "hip_thrust",
+    "file": "assets/exercises/hip_thrust.webp",
+    "pose": "Barbell hip thrust, upper back supported on flat bench, feet planted, knees at 90 degrees, hips elevated, padded bar across hips.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "knee_extension",
+    "file": "assets/exercises/knee_extension.webp",
+    "pose": "Seated leg extension machine, back against upright backrest, legs extended forward, padded roller at front of ankles.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "seated_curl",
+    "file": "assets/exercises/seated_curl.webp",
+    "pose": "Seated leg curl machine, thigh pad above knees, shins curling downward and back against ankle roller.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "stepup",
+    "file": "assets/exercises/stepup.webp",
+    "pose": "Dumbbell step-up onto high bench, one foot on bench with knee bent, other foot on floor, dumbbells at sides.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "calf_single",
+    "file": "assets/exercises/calf_single.webp",
+    "pose": "Single-leg calf raise on small step, one heel raised, opposite knee folded, one hand holding dumbbell and other touching vertical support.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "bike",
+    "file": "assets/exercises/bike.webp",
+    "pose": "Stationary exercise bicycle, person seated pedaling, hands resting on handlebars, recognizable pedals and frame.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "running",
+    "file": "assets/exercises/running.webp",
+    "pose": "Person running in side view, bent elbows, opposite arm and leg forward, light dynamic stride.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "boxing",
+    "file": "assets/exercises/boxing.webp",
+    "pose": "Person shadowboxing in athletic stance, fists in boxing gloves, one punching forward and other guarding chin.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "abwheel",
+    "file": "assets/exercises/abwheel.webp",
+    "pose": "Kneeling abdominal wheel rollout, knees on ground, torso extended forward, both hands holding one small ab roller ahead.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "plank",
+    "file": "assets/exercises/plank.webp",
+    "pose": "Straight-arm high plank, hands below shoulders, straight line from shoulders to heels.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "vup",
+    "file": "assets/exercises/vup.webp",
+    "pose": "V-up abdominal exercise, balancing on buttocks, both straight legs raised, torso raised, hands reaching toward feet.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "climber",
+    "file": "assets/exercises/climber.webp",
+    "pose": "Mountain climber exercise in straight-arm plank, one knee drawn toward chest, other leg extended back.",
+    "usedByExistingMapping": true
+  },
+  {
+    "key": "leg_raises",
+    "file": "assets/exercises/leg_raises.webp",
+    "pose": "Lying straight leg raises, back on floor, both straight legs elevated, arms resting beside body.",
+    "usedByExistingMapping": false
+  },
+  {
+    "key": "plank_to_pushup",
+    "file": "assets/exercises/plank_to_pushup.webp",
+    "pose": "Low forearm plank transitioning to high plank, one hand planted below shoulder, other forearm on floor, body straight.",
+    "usedByExistingMapping": false
+  },
+  {
+    "key": "pike_crunch",
+    "file": "assets/exercises/pike_crunch.webp",
+    "pose": "Pike crunch, lying on back with both straight legs nearly vertical, torso curled up and hands reaching toward toes.",
+    "usedByExistingMapping": false
+  },
+  {
+    "key": "shoulder_taps",
+    "file": "assets/exercises/shoulder_taps.webp",
+    "pose": "High plank shoulder tap, one hand on floor below shoulder, opposite hand touching opposite shoulder, feet slightly spread.",
+    "usedByExistingMapping": false
+  },
+  {
+    "key": "bicycle_crunch",
+    "file": "assets/exercises/bicycle_crunch.webp",
+    "pose": "Bicycle abdominal crunch on back, one elbow rotating toward opposite bent knee, other leg extended just above floor.",
+    "usedByExistingMapping": false
+  },
+  {
+    "key": "scissor_kicks",
+    "file": "assets/exercises/scissor_kicks.webp",
+    "pose": "Lying scissor kicks, back on floor, both straight legs elevated slightly with one crossing over the other, hands beside hips.",
+    "usedByExistingMapping": false
+  },
+  {
+    "key": "side_plank",
+    "file": "assets/exercises/side_plank.webp",
+    "pose": "Side plank resting on one forearm and stacked feet, hips raised, opposite hand resting on hip.",
+    "usedByExistingMapping": false
+  },
+  {
+    "key": "hollow_hold",
+    "file": "assets/exercises/hollow_hold.webp",
+    "pose": "Hollow body hold, lying on back, shoulders raised, arms straight overhead, both straight legs hovering above floor.",
+    "usedByExistingMapping": false
+  },
+  {
+    "key": "russian_twist",
+    "file": "assets/exercises/russian_twist.webp",
+    "pose": "Seated Russian twist, knees bent and feet lightly raised, torso rotated to side, hands clasped beside hip.",
+    "usedByExistingMapping": false
+  },
+  {
+    "key": "dead_bug",
+    "file": "assets/exercises/dead_bug.webp",
+    "pose": "Dead bug exercise on back, one arm reaching behind head and opposite leg extended, other arm vertical and other knee bent at 90 degrees.",
+    "usedByExistingMapping": false
+  },
+  {
+    "key": "reverse_crunch",
+    "file": "assets/exercises/reverse_crunch.webp",
+    "pose": "Reverse crunch on back, knees bent toward chest, hips curling slightly off floor, arms flat beside body.",
+    "usedByExistingMapping": false
+  },
+  {
+    "key": "toe_touches",
+    "file": "assets/exercises/toe_touches.webp",
+    "pose": "Supine toe-touch crunch, straight legs vertical, shoulders curled up, arms reaching toward toes.",
+    "usedByExistingMapping": false
+  },
+  {
+    "key": "flutter_kicks",
+    "file": "assets/exercises/flutter_kicks.webp",
+    "pose": "Lying flutter kicks, back on floor, legs straight hovering, one leg slightly higher than other, arms beside body.",
+    "usedByExistingMapping": false
+  },
+  {
+    "key": "weighted_plank",
+    "file": "assets/exercises/weighted_plank.webp",
+    "pose": "Weighted forearm plank with one flat weight plate resting on upper back, straight body and elbows under shoulders.",
+    "usedByExistingMapping": false
+  },
+  {
+    "key": "l_sit",
+    "file": "assets/exercises/l_sit.webp",
+    "pose": "L-sit on two low parallettes, straight arms pressing into handles, torso vertical, both straight legs extended horizontally forward.",
+    "usedByExistingMapping": false
+  },
+  {
+    "key": "jump_rope",
+    "file": "assets/exercises/jump_rope.webp",
+    "pose": "Person jumping rope, elbows close to torso, hands holding handles at hips, single rope curving overhead, feet just above ground.",
+    "usedByExistingMapping": false
+  }
+]
